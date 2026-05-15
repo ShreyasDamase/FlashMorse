@@ -19,7 +19,8 @@ fun NavGraph(
         modifier = modifier,
     ) {
         composable<Screen.Sender> {
-            SenderScreen()
+            SenderScreen(
+            )
         }
 
         composable<Screen.Receiver> {
