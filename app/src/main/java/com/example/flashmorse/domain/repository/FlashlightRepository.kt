@@ -1,4 +1,10 @@
 package com.example.flashmorse.domain.repository
 
-class FlashlightRepository {
+import com.example.flashmorse.domain.model.MorseSymbol
+
+interface FlashlightRepository {
+    suspend fun transmit(
+        symbols: List<MorseSymbol>,
+        speedMultiplier: Float
+    )
 }

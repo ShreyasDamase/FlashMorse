@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -106,7 +107,9 @@ fun CommunicatorScreen(
                             viewModel.stopListening()
 
                         }
-                    }
+                    },
+                    onSendClick = viewModel::onSendMessage,
+                    onTestClick = viewModel::testFlashlight
                 )
                 CameraViewSection(modifier = Modifier.weight(1f))
             }
@@ -176,7 +179,9 @@ fun MessageInputSection(
     modifier: Modifier,
     text: String,
     onTextChange: (String) -> Unit,
-    onVoiceClick: () -> Unit
+    onVoiceClick: () -> Unit,
+    onSendClick: () -> Unit,
+    onTestClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -212,31 +217,40 @@ fun MessageInputSection(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Text and Voice buttons (simplified)
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(
-                    onClick = {},
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-                ) {
-                    Text("TEXT", color = Color.Black, fontSize = 10.sp)
-                }
+            Button(
+                onClick = onTestClick,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(4.dp)
+            ) {
+                Text("TEST", color = Color.Black, fontSize = 10.sp)
             }
+
             FloatingActionButton(
                 onClick = onVoiceClick,
                 containerColor = Color.White,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(40.dp)
             ) {
-                // Mic icon would go here
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Mic,
+                    contentDescription = "Voice",
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                )
             }
+
             Button(
-                onClick = {},
+                onClick = onSendClick,
+                modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500)),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(4.dp)
             ) {
-                Text("VOICE", color = Color.Black, fontSize = 10.sp)
+                Text("SEND", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
