@@ -34,8 +34,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,9 +49,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.util.Locale
 import com.example.flashmorse.presentation.common.PermissionUtils
+import java.util.Locale
 
 @Composable
 fun CommunicatorScreen(
@@ -57,16 +64,37 @@ fun CommunicatorScreen(
     val context = LocalContext.current
 
 
-    val permissionLauncher = rememberLauncherForActivityResult(
+    var hasCameraPermission by remember {
+        mutableStateOf(PermissionUtils.isPermissionGranted(context, Manifest.permission.CAMERA))
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasCameraPermission = granted
+    }
+
+    val audioPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
             viewModel.startListening()
-
         }
     }
 
-
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasCameraPermission =
+                    PermissionUtils.isPermissionGranted(context, Manifest.permission.CAMERA)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -102,7 +130,7 @@ fun CommunicatorScreen(
                             if (granted) {
                                 viewModel.startListening()
                             } else {
-                                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                             }
                         } else {
                             viewModel.stopListening()
@@ -112,7 +140,15 @@ fun CommunicatorScreen(
                     onSendClick = viewModel::onSendMessage,
                     onTestClick = viewModel::testFlashlight
                 )
-                CameraViewSection(modifier = Modifier.weight(1f))
+                CameraViewSection(
+                    modifier = Modifier.weight(1f),
+                    hasCameraPermission = hasCameraPermission,
+                    onRequestPermission = {
+                        cameraPermissionLauncher.launch(
+                            Manifest.permission.CAMERA
+                        )
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -148,7 +184,7 @@ fun CommunicatorScreen(
                         if (granted) {
                             viewModel.startListening()
                         } else {
-                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                         }
                     }
                 }
@@ -268,41 +304,6 @@ fun MessageInputSection(
     }
 }
 
-@Composable
-fun CameraViewSection(modifier: Modifier) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF2ECE4))
-            .padding(12.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(Color.Green)
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                "CAMERA VIEW",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.Black)
-        ) {
-            // Camera Preview placeholder
-            Text("REC", color = Color.Red, modifier = Modifier.padding(8.dp), fontSize = 10.sp)
-        }
-    }
-}
 
 @Composable
 fun MorseSignalSection(sendingSignal: String, receivingSignal: String) {
