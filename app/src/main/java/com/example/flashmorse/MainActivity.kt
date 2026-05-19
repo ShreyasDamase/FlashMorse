@@ -6,7 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.example.flashmorse.presentation.navigation.NavigationTabs
+import androidx.navigation.compose.rememberNavController
+import com.example.flashmorse.presentation.navigation.NavGraph
 import com.example.flashmorse.ui.theme.MyApplicationTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,9 +18,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                // NavigationTabs now manages its own NavController internally,
-                // keeping MainActivity clean and focused.
-                NavigationTabs(
+                val navController = rememberNavController()
+                NavGraph(
+                    navController = navController,
                     modifier = Modifier.fillMaxSize()
                 )
             }

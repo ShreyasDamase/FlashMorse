@@ -5,8 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.flashmorse.presentation.reciever.ReceiverScreen
-import com.example.flashmorse.presentation.sender.SenderScreen
+import com.example.flashmorse.presentation.communicator.CommunicatorScreen
 
 @Composable
 fun NavGraph(
@@ -15,16 +14,11 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Sender,
+        startDestination = Screen.Communicator,
         modifier = modifier,
     ) {
-        composable<Screen.Sender> {
-            SenderScreen(
-            )
-        }
-
-        composable<Screen.Receiver> {
-            ReceiverScreen()
+        composable<Screen.Communicator> {
+            CommunicatorScreen()
         }
     }
 }

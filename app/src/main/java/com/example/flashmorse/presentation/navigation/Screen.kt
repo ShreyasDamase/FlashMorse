@@ -7,8 +7,5 @@ sealed interface Screen {
     data object Main : Screen
 
     @Serializable
-    data object Sender : Screen
-    
-    @Serializable
-    data object Receiver : Screen
+    data object Communicator : Screen
 }
