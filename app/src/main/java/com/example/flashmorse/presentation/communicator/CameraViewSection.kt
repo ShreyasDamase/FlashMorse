@@ -21,11 +21,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+import androidx.camera.core.CameraControl
+
 @Composable
 fun CameraViewSection(
     modifier: Modifier,
     hasCameraPermission: Boolean,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    onCameraControlReady: (CameraControl?) -> Unit = {},
+    onBrightnessDetected: (Double) -> Unit = {}
 ) {
 
     Column(
@@ -62,7 +66,10 @@ fun CameraViewSection(
 
             if (hasCameraPermission) {
 
-                CameraPreview()
+                CameraPreview(
+                    onCameraControlReady = onCameraControlReady,
+                    onBrightnessDetected = onBrightnessDetected
+                )
 
             } else {
 

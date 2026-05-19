@@ -147,7 +147,9 @@ fun CommunicatorScreen(
                         cameraPermissionLauncher.launch(
                             Manifest.permission.CAMERA
                         )
-                    }
+                    },
+                    onCameraControlReady = viewModel::onCameraControlReady,
+                    onBrightnessDetected = viewModel::onBrightnessDetected
                 )
             }
 

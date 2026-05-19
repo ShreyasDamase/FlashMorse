@@ -2,6 +2,8 @@ package com.example.flashmorse.presentation.communicator
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.camera.core.CameraControl
+import com.example.flashmorse.data.flashlight.FlashlightDataSource
 import com.example.flashmorse.data.speech.SpeechRecognitionManager
 import com.example.flashmorse.domain.usecase.AppendReceivedMessageUseCase
 import com.example.flashmorse.domain.usecase.CreateLogEntryUseCase
@@ -22,7 +24,8 @@ class CommunicatorViewModel @Inject constructor(
     private val createLogEntryUseCase: CreateLogEntryUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val appendReceivedMessageUseCase: AppendReceivedMessageUseCase,
-    private val transmitMorseUseCase: TransmitMorseUseCase
+    private val transmitMorseUseCase: TransmitMorseUseCase,
+    private val flashlightDataSource: FlashlightDataSource
 ) : ViewModel() {
 
 
@@ -188,5 +191,14 @@ class CommunicatorViewModel @Inject constructor(
 
     fun onSpeedChanged(multiplier: Float) {
         _uiState.update { it.copy(durationMultiplier = multiplier) }
+    }
+
+    fun onCameraControlReady(control: CameraControl?) {
+        flashlightDataSource.setCameraControl(control)
+    }
+
+    fun onBrightnessDetected(brightness: Double) {
+        // TODO: Pass this to MorseDecoder for real-time decoding
+        _uiState.update { it.copy(receivingSignal = if (brightness > 100) "•" else "") }
     }
 }
