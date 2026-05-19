@@ -90,14 +90,31 @@ class CommunicatorViewModel @Inject constructor(
     }
 
     fun onCommittedReceivedTextUpdate(text: String) {
+
+        val morseSignal =
+            encodeTextUseCase(text)
+
         _uiState.update { state ->
-            val newLog = state.communicationLog + createLogEntryUseCase(LogType.RECEIVED, text)
+
+            val newLog =
+                state.communicationLog +
+                        createLogEntryUseCase(
+                            LogType.RECEIVED,
+                            text
+                        )
+
             state.copy(
-                committedReceivedText = appendReceivedMessageUseCase(
-                    state.committedReceivedText,
-                    text
-                ),
+
+                committedReceivedText =
+                    appendReceivedMessageUseCase(
+                        state.committedReceivedText,
+                        text
+                    ),
+
                 partialReceivedText = "",
+
+                sendingSignal = morseSignal,
+
                 communicationLog = newLog
             )
         }
