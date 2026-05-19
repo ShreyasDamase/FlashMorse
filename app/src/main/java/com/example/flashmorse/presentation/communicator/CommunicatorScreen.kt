@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.util.Locale
 import com.example.flashmorse.presentation.common.PermissionUtils
 
 @Composable
@@ -138,7 +139,18 @@ fun CommunicatorScreen(
                 onSpeedChange = viewModel::onSpeedChanged,
                 isListening = uiState.isListening,
                 onToggleListening = {
-                    // Similar logic to onVoiceClick
+                    if (uiState.isListening) {
+                        viewModel.stopListening()
+                    } else {
+                        val granted = PermissionUtils.isPermissionGranted(
+                            context = context, Manifest.permission.RECORD_AUDIO
+                        )
+                        if (granted) {
+                            viewModel.startListening()
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    }
                 }
             )
         }
@@ -383,36 +395,77 @@ fun BottomControlsSection(
     isListening: Boolean,
     onToggleListening: () -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Unified Speed Slider - Full Width for fine tuning
         Column(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color(0xFFF2ECE4))
-                .padding(12.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("SPEED", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-            Slider(value = speed, onValueChange = onSpeedChange, valueRange = 0.5f..2.0f)
-            Text("DURATION MULTIPLIER", fontSize = 8.sp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "TRANSMISSION UNIT (SPEED)",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4A453E)
+                )
+                Text(
+                    text = String.format(Locale.US, "%.2fx", speed),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFFFFA500) // Match the 'Send' color
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Slider(
+                value = speed,
+                onValueChange = onSpeedChange,
+                valueRange = 0.5f..3.0f,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                "Sync this value with the other device for accurate decoding",
+                fontSize = 10.sp,
+                color = Color.Gray
+            )
         }
-        Column(
+
+        // Mode Listening - Horizontal Layout
+        Row(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color(0xFFF2ECE4))
-                .padding(12.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                "MODE LISTENING",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "LISTENING MODE",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "Decodes incoming light signals when active.",
+                    fontSize = 10.sp,
+                    color = Color.Gray
+                )
+            }
+            Switch(
+                checked = isListening,
+                onCheckedChange = { onToggleListening() }
             )
-            Switch(checked = isListening, onCheckedChange = { onToggleListening() })
-            Text("When ON, device listens and decodes incoming light signals.", fontSize = 8.sp)
         }
     }
 }

@@ -181,7 +181,7 @@ class CommunicatorViewModel @Inject constructor(
         viewModelScope.launch {
             transmitMorseUseCase(
                 text = "T", // 'T' is just one dash, good for testing
-                speedMultiplier = 1.0f
+                speedMultiplier = uiState.value.durationMultiplier
             )
         }
     }
