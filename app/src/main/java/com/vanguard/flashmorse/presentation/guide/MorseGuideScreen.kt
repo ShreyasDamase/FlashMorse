@@ -34,8 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,8 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.vanguard.flashmorse.presentation.settings.SettingsViewModel
+import com.vanguard.flashmorse.ui.theme.FlashOrange
 import kotlinx.coroutines.launch
 
 data class MorseItem(val char: String, val morse: String)
@@ -55,18 +52,13 @@ data class MorseItem(val char: String, val morse: String)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MorseGuideScreen(
-    onBackClick: () -> Unit,
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    onBackClick: () -> Unit
 ) {
-    val isDark by settingsViewModel.isDarkMode.collectAsState()
+    val colorScheme = MaterialTheme.colorScheme
     val coroutineScope = rememberCoroutineScope()
     
     val tabs = listOf("LETTERS", "NUMBERS", "SYMBOLS")
     val pagerState = rememberPagerState(pageCount = { tabs.size })
-
-    val backgroundColor = if (isDark) Color(0xFF000000) else Color(0xFFE8DFD3)
-    val cardBackgroundColor = if (isDark) Color(0xFF121212) else Color(0xFFF2ECE4)
-    val primaryTextColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF4A453E)
 
     val letters = listOf(
         MorseItem("A", "• -"), MorseItem("B", "- • • •"), MorseItem("C", "- • - •"),
@@ -102,16 +94,16 @@ fun MorseGuideScreen(
                 title = { Text("MORSE ALPHABET GUIDE", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = primaryTextColor)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = backgroundColor,
-                    titleContentColor = primaryTextColor
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground
                 )
             )
         },
-        containerColor = backgroundColor
+        containerColor = colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -120,12 +112,12 @@ fun MorseGuideScreen(
         ) {
             PrimaryTabRow(
                 selectedTabIndex = pagerState.currentPage,
-                containerColor = backgroundColor,
-                contentColor = primaryTextColor,
+                containerColor = colorScheme.background,
+                contentColor = colorScheme.onBackground,
                 indicator = {
                     TabRowDefaults.PrimaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(pagerState.currentPage),
-                        color = Color(0xFFFFA500)
+                        color = FlashOrange
                     )
                 }
             ) {
@@ -138,8 +130,8 @@ fun MorseGuideScreen(
                             }
                         },
                         text = { Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp) },
-                        selectedContentColor = Color(0xFFFFA500),
-                        unselectedContentColor = primaryTextColor.copy(alpha = 0.6f)
+                        selectedContentColor = FlashOrange,
+                        unselectedContentColor = colorScheme.onBackground.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -149,7 +141,7 @@ fun MorseGuideScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)
-                    .background(backgroundColor)
+                    .background(colorScheme.background)
             ) { page ->
                 val itemsList = when (page) {
                     0 -> letters
@@ -165,7 +157,7 @@ fun MorseGuideScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(itemsList) { item ->
-                        MorseGridItem(item, cardBackgroundColor, primaryTextColor)
+                        MorseGridItem(item, colorScheme.surface, colorScheme.onSurface)
                     }
                 }
             }
@@ -207,7 +199,7 @@ fun MorseGridItem(
                 text = item.morse,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFFFA500),
+                color = MaterialTheme.colorScheme.primary,
                 letterSpacing = 2.sp,
                 textAlign = TextAlign.End,
                 modifier = Modifier.weight(1f)

@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vanguard.flashmorse.ui.theme.appInputSurface
+import com.vanguard.flashmorse.ui.theme.appMutedText
+import com.vanguard.flashmorse.ui.theme.appReceiverGreen
 
 import androidx.camera.core.CameraControl
 
@@ -36,11 +39,12 @@ fun CameraViewSection(
     onBrightnessDetected: (Double) -> Unit = {},
     signalStrength: Float = 0f
 ) {
+    val colorScheme = MaterialTheme.colorScheme
 
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF2ECE4))
+            .background(colorScheme.surface)
             .padding(12.dp)
     ) {
 
@@ -52,7 +56,7 @@ fun CameraViewSection(
                 modifier = Modifier
                     .size(8.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(if (signalStrength > 150f/255f) Color.Green else Color.Gray)
+                    .background(if (signalStrength > 150f/255f) colorScheme.appReceiverGreen else colorScheme.appMutedText)
             )
 
             Spacer(Modifier.width(4.dp))
@@ -60,7 +64,8 @@ fun CameraViewSection(
             Text(
                 "RECEIVER CAM (ROI)",
                 style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = colorScheme.onSurface
             )
         }
 
@@ -69,7 +74,7 @@ fun CameraViewSection(
                 .fillMaxSize()
                 .padding(vertical = 8.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.Black),
+                .background(colorScheme.appInputSurface),
             contentAlignment = Alignment.Center
         ) {
 
@@ -86,7 +91,7 @@ fun CameraViewSection(
                         .size(60.dp)
                         .border(
                             width = 2.dp,
-                            color = if (signalStrength > 150f/255f) Color(0xFF90EE90) else Color.White.copy(alpha = 0.5f),
+                            color = if (signalStrength > 150f/255f) colorScheme.appReceiverGreen else Color.White.copy(alpha = 0.5f),
                             shape = RoundedCornerShape(4.dp)
                         )
                 )
@@ -95,10 +100,10 @@ fun CameraViewSection(
 
                 Button(
                     onClick = onRequestPermission,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.outline)
                 ) {
 
-                    Text("Grant Camera Permission", fontSize = 10.sp)
+                    Text("Grant Camera Permission", fontSize = 10.sp, color = Color.White)
                 }
             }
         }

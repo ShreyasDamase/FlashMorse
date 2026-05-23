@@ -31,8 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,22 +40,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.vanguard.flashmorse.presentation.settings.SettingsViewModel
+import com.vanguard.flashmorse.ui.theme.FlashOrange
+import com.vanguard.flashmorse.ui.theme.appBodyText
+import com.vanguard.flashmorse.ui.theme.appMutedText
+import com.vanguard.flashmorse.ui.theme.appSecondaryText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
-    onBackClick: () -> Unit,
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    onBackClick: () -> Unit
 ) {
-    val isDark by settingsViewModel.isDarkMode.collectAsState()
-
-    val backgroundColor = if (isDark) Color(0xFF000000) else Color(0xFFE8DFD3)
-    val cardBackgroundColor = if (isDark) Color(0xFF121212) else Color(0xFFF2ECE4)
-    val primaryTextColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF4A453E)
-    val secondaryTextColor = if (isDark) Color(0xFFB0B0B0) else Color(0xFF8B8479)
-    val cardBodyColor = if (isDark) Color(0xFFE0E0E0) else Color.DarkGray
+    val colorScheme = MaterialTheme.colorScheme
 
     Scaffold(
         topBar = {
@@ -65,16 +58,16 @@ fun AboutScreen(
                 title = { Text("ABOUT FLASHMORSE", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = primaryTextColor)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = backgroundColor,
-                    titleContentColor = primaryTextColor
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground
                 )
             )
         },
-        containerColor = backgroundColor
+        containerColor = colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -91,7 +84,7 @@ fun AboutScreen(
                 modifier = Modifier
                     .size(90.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFFFA500)),
+                    .background(FlashOrange),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -108,13 +101,13 @@ fun AboutScreen(
                 "FLASHMORSE",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
-                color = primaryTextColor
+                color = colorScheme.onBackground
             )
             
             Text(
                 "Version 1.0.0",
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isDark) Color(0xFF888888) else Color.Gray
+                color = colorScheme.appMutedText
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -124,7 +117,7 @@ fun AboutScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
                 colors = CardDefaults.cardColors(
-                    containerColor = cardBackgroundColor
+                    containerColor = colorScheme.surface
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -132,13 +125,13 @@ fun AboutScreen(
                         "Mission",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = primaryTextColor
+                        color = colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "FlashMorse is a high-performance, real-time light signal communicator using optical camera analysis for Morse decoding and device flashlight controls for optical transmission. Engineered for absolute speed and accuracy in local optical signal processing.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = cardBodyColor,
+                        color = colorScheme.appBodyText,
                         lineHeight = 20.sp
                     )
                 }
@@ -152,7 +145,7 @@ fun AboutScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
                 colors = CardDefaults.cardColors(
-                    containerColor = cardBackgroundColor
+                    containerColor = colorScheme.surface
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -160,22 +153,22 @@ fun AboutScreen(
                         Icon(
                             Icons.Default.Code,
                             contentDescription = "Code",
-                            tint = Color(0xFFFFA500)
+                            tint = colorScheme.primary
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             "Architecture & Stack",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = primaryTextColor
+                            color = colorScheme.onSurface
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    TechItem("UI Framework", "Jetpack Compose & Material 3", secondaryTextColor, cardBodyColor)
-                    TechItem("Asynchronous Flow", "Kotlin Coroutines & Flow", secondaryTextColor, cardBodyColor)
-                    TechItem("Dependency Injection", "Dagger Hilt", secondaryTextColor, cardBodyColor)
-                    TechItem("Camera System", "Android Jetpack CameraX", secondaryTextColor, cardBodyColor)
-                    TechItem("Audio/Speech Engine", "On-Device SpeechRecognizer", secondaryTextColor, cardBodyColor)
+                    TechItem("UI Framework", "Jetpack Compose & Material 3", colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem("Asynchronous Flow", "Kotlin Coroutines & Flow", colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem("Dependency Injection", "Dagger Hilt", colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem("Camera System", "Android Jetpack CameraX", colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem("Audio/Speech Engine", "On-Device SpeechRecognizer", colorScheme.appSecondaryText, colorScheme.appBodyText)
                 }
             }
 
@@ -187,7 +180,7 @@ fun AboutScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
                 colors = CardDefaults.cardColors(
-                    containerColor = cardBackgroundColor
+                    containerColor = colorScheme.surface
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -195,21 +188,21 @@ fun AboutScreen(
                         Icon(
                             Icons.Default.Info,
                             contentDescription = "Licensing",
-                            tint = primaryTextColor
+                            tint = colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             "Open Source Licensing",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = primaryTextColor
+                            color = colorScheme.onSurface
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "This application utilizes software libraries distributed under standard open-source licenses (Apache 2.0 and MIT), including Google Android Jetpack Libraries, Dagger Hilt, and Kotlinx Serialization.\n\nAll optical processing runs completely offline and respects open source guidelines.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isDark) Color(0xFF888888) else Color.Gray,
+                        color = colorScheme.appMutedText,
                         lineHeight = 16.sp
                     )
                 }
@@ -219,7 +212,7 @@ fun AboutScreen(
             Text(
                 "© 2026 Vanguard. All rights reserved.",
                 style = MaterialTheme.typography.labelSmall,
-                color = if (isDark) Color(0xFF888888) else Color.Gray
+                color = colorScheme.appMutedText
             )
             Spacer(modifier = Modifier.height(16.dp))
         }

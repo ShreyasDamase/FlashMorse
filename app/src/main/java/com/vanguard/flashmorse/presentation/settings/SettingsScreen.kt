@@ -1,6 +1,5 @@
 package com.vanguard.flashmorse.presentation.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,7 +30,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.vanguard.flashmorse.ui.theme.appMutedText
+import com.vanguard.flashmorse.ui.theme.appSecondaryText
+import com.vanguard.flashmorse.ui.theme.appSwitchUncheckedThumb
+import com.vanguard.flashmorse.ui.theme.appSwitchUncheckedTrack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,14 +41,10 @@ fun SettingsScreen(
     onBackClick: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val isDark by viewModel.isDarkMode.collectAsState()
     val isVibrationEnabled by viewModel.isVibrationEnabled.collectAsState()
     val isSoundEnabled by viewModel.isSoundEnabled.collectAsState()
-
-    val backgroundColor = if (isDark) Color(0xFF000000) else Color(0xFFE8DFD3)
-    val primaryTextColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF4A453E)
-    val secondaryTextColor = if (isDark) Color(0xFFB0B0B0) else Color(0xFF8B8479)
-    val dividerColor = if (isDark) Color(0xFF222222) else Color(0xFFD1C7B7)
 
     Scaffold(
         topBar = {
@@ -57,17 +55,17 @@ fun SettingsScreen(
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = primaryTextColor
+                            tint = colorScheme.onBackground
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = backgroundColor,
-                    titleContentColor = primaryTextColor
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground
                 )
             )
         },
-        containerColor = backgroundColor
+        containerColor = colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -78,7 +76,7 @@ fun SettingsScreen(
             Text(
                 "GENERAL",
                 style = MaterialTheme.typography.labelMedium,
-                color = secondaryTextColor,
+                color = colorScheme.appSecondaryText,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -88,16 +86,15 @@ fun SettingsScreen(
                 description = "Use dark theme for the interface",
                 checked = isDark,
                 onCheckedChange = viewModel::setDarkMode,
-                primaryTextColor = primaryTextColor,
-                isDark = isDark
+                primaryTextColor = colorScheme.onBackground
             )
             
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = dividerColor)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = colorScheme.outline)
             
             Text(
                 "TRANSMISSION",
                 style = MaterialTheme.typography.labelMedium,
-                color = secondaryTextColor,
+                color = colorScheme.appSecondaryText,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -107,8 +104,7 @@ fun SettingsScreen(
                 description = "Vibrate device while transmitting",
                 checked = isVibrationEnabled,
                 onCheckedChange = viewModel::setVibrationEnabled,
-                primaryTextColor = primaryTextColor,
-                isDark = isDark
+                primaryTextColor = colorScheme.onBackground
             )
             
             SettingItem(
@@ -116,8 +112,7 @@ fun SettingsScreen(
                 description = "Play beeps during signal detection",
                 checked = isSoundEnabled,
                 onCheckedChange = viewModel::setSoundEnabled,
-                primaryTextColor = primaryTextColor,
-                isDark = isDark
+                primaryTextColor = colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -126,7 +121,7 @@ fun SettingsScreen(
                 "Flash Morse v1.0.0",
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray
+                color = colorScheme.appMutedText
             )
         }
     }
@@ -138,9 +133,9 @@ fun SettingItem(
     description: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    primaryTextColor: Color,
-    isDark: Boolean
+    primaryTextColor: Color
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -157,18 +152,18 @@ fun SettingItem(
             Text(
                 description,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isDark) Color(0xFF888888) else Color.Gray
+                color = colorScheme.appMutedText
             )
         }
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color(0xFFFFA500),
-                checkedTrackColor = Color(0xFFFFA500).copy(alpha = 0.5f),
-                uncheckedThumbColor = if (isDark) Color.DarkGray else Color.White,
-                uncheckedTrackColor = if (isDark) Color(0xFF222222) else Color(0xFFCCCCCC)
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = colorScheme.primary,
+                    checkedTrackColor = colorScheme.primary.copy(alpha = 0.5f),
+                    uncheckedThumbColor = colorScheme.appSwitchUncheckedThumb,
+                    uncheckedTrackColor = colorScheme.appSwitchUncheckedTrack
+                )
             )
-        )
-    }
+        }
 }
