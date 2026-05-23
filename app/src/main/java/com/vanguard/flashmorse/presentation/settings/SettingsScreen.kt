@@ -27,9 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.vanguard.flashmorse.R
 import com.vanguard.flashmorse.ui.theme.appMutedText
 import com.vanguard.flashmorse.ui.theme.appSecondaryText
 import com.vanguard.flashmorse.ui.theme.appSwitchUncheckedThumb
@@ -49,12 +51,12 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("SETTINGS", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = colorScheme.onBackground
                         )
                     }
@@ -74,7 +76,7 @@ fun SettingsScreen(
                 .padding(16.dp)
         ) {
             Text(
-                "GENERAL",
+                stringResource(R.string.settings_general),
                 style = MaterialTheme.typography.labelMedium,
                 color = colorScheme.appSecondaryText,
                 fontWeight = FontWeight.Bold
@@ -82,8 +84,8 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             SettingItem(
-                title = "Dark Mode",
-                description = "Use dark theme for the interface",
+                title = stringResource(R.string.settings_dark_mode),
+                description = stringResource(R.string.settings_dark_mode_desc),
                 checked = isDark,
                 onCheckedChange = viewModel::setDarkMode,
                 primaryTextColor = colorScheme.onBackground
@@ -92,7 +94,7 @@ fun SettingsScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = colorScheme.outline)
             
             Text(
-                "TRANSMISSION",
+                stringResource(R.string.settings_transmission),
                 style = MaterialTheme.typography.labelMedium,
                 color = colorScheme.appSecondaryText,
                 fontWeight = FontWeight.Bold
@@ -100,16 +102,16 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             SettingItem(
-                title = "Flashlight Vibration",
-                description = "Vibrate device while transmitting",
+                title = stringResource(R.string.settings_vibration),
+                description = stringResource(R.string.settings_vibration_desc),
                 checked = isVibrationEnabled,
                 onCheckedChange = viewModel::setVibrationEnabled,
                 primaryTextColor = colorScheme.onBackground
             )
             
             SettingItem(
-                title = "Sound Feedback",
-                description = "Play beeps during signal detection",
+                title = stringResource(R.string.settings_sound_feedback),
+                description = stringResource(R.string.settings_sound_feedback_desc),
                 checked = isSoundEnabled,
                 onCheckedChange = viewModel::setSoundEnabled,
                 primaryTextColor = colorScheme.onBackground
@@ -118,7 +120,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.weight(1f))
             
             Text(
-                "Flash Morse v1.0.0",
+                stringResource(R.string.label_flash_morse_version),
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.labelSmall,
                 color = colorScheme.appMutedText

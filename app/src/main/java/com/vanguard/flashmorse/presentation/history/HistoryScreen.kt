@@ -42,12 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import com.vanguard.flashmorse.R
 import com.vanguard.flashmorse.presentation.communicator.LogEntry
 import com.vanguard.flashmorse.presentation.communicator.LogType
 import com.vanguard.flashmorse.ui.theme.appBodyText
@@ -115,8 +117,8 @@ fun HistoryScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Clear History", fontWeight = FontWeight.Bold) },
-            text = { Text("Are you sure you want to permanently delete all communication history logs?") },
+            title = { Text(stringResource(R.string.history_clear_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.history_clear_body)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -124,12 +126,12 @@ fun HistoryScreen(
                         showDeleteDialog = false
                     }
                 ) {
-                    Text("CLEAR", color = Color.Red, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.history_clear_confirm), color = Color.Red, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("CANCEL", color = colorScheme.appMutedText)
+                    Text(stringResource(R.string.history_clear_cancel), color = colorScheme.appMutedText)
                 }
             },
             containerColor = colorScheme.surface,
@@ -141,16 +143,16 @@ fun HistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("COMMUNICATION HISTORY", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.history_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorScheme.onBackground)
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_back), tint = colorScheme.onBackground)
                     }
                 },
                 actions = {
                     if (logs.isNotEmpty()) {
                         IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Clear All", tint = colorScheme.onBackground)
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.cd_clear_all), tint = colorScheme.onBackground)
                         }
                     }
                 },
@@ -176,20 +178,20 @@ fun HistoryScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             Icons.Default.History,
-                            contentDescription = "Empty History",
+                            contentDescription = stringResource(R.string.cd_empty_history),
                             modifier = Modifier.size(72.dp),
                             tint = colorScheme.appMutedText.copy(alpha = 0.5f)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "No logged communications yet.",
+                            stringResource(R.string.history_empty_title),
                             style = MaterialTheme.typography.bodyLarge,
                             color = colorScheme.appMutedText,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Transmitted & received Morse signals will appear here.",
+                            stringResource(R.string.history_empty_body),
                             style = MaterialTheme.typography.bodySmall,
                             color = colorScheme.appMutedText.copy(alpha = 0.8f),
                             textAlign = TextAlign.Center

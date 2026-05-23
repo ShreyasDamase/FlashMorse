@@ -1,6 +1,7 @@
 package com.vanguard.flashmorse.presentation.about
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,11 +35,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.vanguard.flashmorse.R
 import com.vanguard.flashmorse.ui.theme.FlashOrange
 import com.vanguard.flashmorse.ui.theme.appBodyText
 import com.vanguard.flashmorse.ui.theme.appMutedText
@@ -51,14 +53,16 @@ fun AboutScreen(
     onBackClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val uriHandler = LocalUriHandler.current
+    val termsUrl = stringResource(R.string.app_terms_url)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("ABOUT FLASHMORSE", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.about_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorScheme.onBackground)
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_back), tint = colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -88,7 +92,7 @@ fun AboutScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "• --",
+                    stringResource(R.string.about_brand_mark),
                     color = Color.White,
                     fontWeight = FontWeight.Black,
                     fontSize = 32.sp
@@ -98,14 +102,14 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "FLASHMORSE",
+                stringResource(R.string.label_flash_morse),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
                 color = colorScheme.onBackground
             )
             
             Text(
-                "Version 1.0.0",
+                stringResource(R.string.label_version_full),
                 style = MaterialTheme.typography.bodyMedium,
                 color = colorScheme.appMutedText
             )
@@ -122,14 +126,14 @@ fun AboutScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "Mission",
+                        stringResource(R.string.about_mission_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "FlashMorse is a high-performance, real-time light signal communicator using optical camera analysis for Morse decoding and device flashlight controls for optical transmission. Engineered for absolute speed and accuracy in local optical signal processing.",
+                        stringResource(R.string.about_mission_body),
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorScheme.appBodyText,
                         lineHeight = 20.sp
@@ -152,23 +156,23 @@ fun AboutScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.Code,
-                            contentDescription = "Code",
+                            contentDescription = stringResource(R.string.cd_code),
                             tint = colorScheme.primary
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "Architecture & Stack",
+                            stringResource(R.string.about_stack_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = colorScheme.onSurface
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    TechItem("UI Framework", "Jetpack Compose & Material 3", colorScheme.appSecondaryText, colorScheme.appBodyText)
-                    TechItem("Asynchronous Flow", "Kotlin Coroutines & Flow", colorScheme.appSecondaryText, colorScheme.appBodyText)
-                    TechItem("Dependency Injection", "Dagger Hilt", colorScheme.appSecondaryText, colorScheme.appBodyText)
-                    TechItem("Camera System", "Android Jetpack CameraX", colorScheme.appSecondaryText, colorScheme.appBodyText)
-                    TechItem("Audio/Speech Engine", "On-Device SpeechRecognizer", colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem(stringResource(R.string.about_stack_ui_framework), stringResource(R.string.about_stack_ui_framework_value), colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem(stringResource(R.string.about_stack_async_flow), stringResource(R.string.about_stack_async_flow_value), colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem(stringResource(R.string.about_stack_di), stringResource(R.string.about_stack_di_value), colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem(stringResource(R.string.about_stack_camera), stringResource(R.string.about_stack_camera_value), colorScheme.appSecondaryText, colorScheme.appBodyText)
+                    TechItem(stringResource(R.string.about_stack_audio), stringResource(R.string.about_stack_audio_value), colorScheme.appSecondaryText, colorScheme.appBodyText)
                 }
             }
 
@@ -187,12 +191,12 @@ fun AboutScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.Info,
-                            contentDescription = "Licensing",
+                            contentDescription = stringResource(R.string.cd_licensing),
                             tint = colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "Open Source Licensing",
+                            stringResource(R.string.about_licensing_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = colorScheme.onSurface
@@ -200,7 +204,7 @@ fun AboutScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "This application utilizes software libraries distributed under standard open-source licenses (Apache 2.0 and MIT), including Google Android Jetpack Libraries, Dagger Hilt, and Kotlinx Serialization.\n\nAll optical processing runs completely offline and respects open source guidelines.",
+                        stringResource(R.string.about_licensing_body),
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.appMutedText,
                         lineHeight = 16.sp
@@ -210,7 +214,17 @@ fun AboutScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                "© 2026 Vanguard. All rights reserved.",
+                "Terms and Conditions",
+                modifier = Modifier.clickable {
+                    uriHandler.openUri(termsUrl)
+                },
+                style = MaterialTheme.typography.labelMedium,
+                color = colorScheme.primary,
+                textDecoration = TextDecoration.Underline
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.label_copyright),
                 style = MaterialTheme.typography.labelSmall,
                 color = colorScheme.appMutedText
             )

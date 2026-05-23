@@ -21,9 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vanguard.flashmorse.R
 import com.vanguard.flashmorse.ui.theme.appInputSurface
 import com.vanguard.flashmorse.ui.theme.appMutedText
 import com.vanguard.flashmorse.ui.theme.appReceiverGreen
@@ -62,7 +64,7 @@ fun CameraViewSection(
             Spacer(Modifier.width(4.dp))
 
             Text(
-                "RECEIVER CAM (ROI)",
+                stringResource(R.string.receiver_cam_roi),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = colorScheme.onSurface
@@ -103,7 +105,7 @@ fun CameraViewSection(
                     colors = ButtonDefaults.buttonColors(containerColor = colorScheme.outline)
                 ) {
 
-                    Text("Grant Camera Permission", fontSize = 10.sp, color = Color.White)
+                    Text(stringResource(R.string.button_grant_camera_permission), fontSize = 10.sp, color = Color.White)
                 }
             }
         }

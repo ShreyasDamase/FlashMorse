@@ -1,6 +1,7 @@
 package com.vanguard.flashmorse.presentation.policy
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,10 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.vanguard.flashmorse.R
 import com.vanguard.flashmorse.ui.theme.appBodyText
 import com.vanguard.flashmorse.ui.theme.appMutedText
 import com.vanguard.flashmorse.ui.theme.appSecondaryText
@@ -40,14 +43,16 @@ fun PrivacyPolicyScreen(
     onBackClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val uriHandler = LocalUriHandler.current
+    val privacyUrl = stringResource(R.string.app_privacy_url)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("PRIVACY POLICY", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.privacy_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorScheme.onBackground)
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_back), tint = colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -66,7 +71,7 @@ fun PrivacyPolicyScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                "DATA & SECURITY ASSURANCE",
+                stringResource(R.string.privacy_security_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = colorScheme.appSecondaryText,
                 fontWeight = FontWeight.Bold
@@ -85,14 +90,14 @@ fun PrivacyPolicyScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        "100% On-Device Processing",
+                        stringResource(R.string.privacy_on_device_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "FlashMorse utilizes your device's Camera and Microphone hardware to decode light signal fluctuations and capture voice inputs. We strictly respect your privacy: ALL operations, calculations, and decoding runs are performed locally on your device in real-time. Absolutely zero image frames, audio recordings, or text logs are sent, stored, or processed on remote cloud servers.",
+                        stringResource(R.string.privacy_on_device_body),
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorScheme.appBodyText,
                         lineHeight = 20.sp
@@ -103,7 +108,7 @@ fun PrivacyPolicyScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "HARDWARE PERMISSIONS USED",
+                stringResource(R.string.privacy_permissions_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = colorScheme.appSecondaryText,
                 fontWeight = FontWeight.Bold
@@ -111,8 +116,8 @@ fun PrivacyPolicyScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             PermissionInfoCard(
-                title = "Camera Permission (CAMERA)",
-                description = "Required to capture ambient light pulses and decode flashing sequences in real-time. Video frames are analyzed stream-by-stream locally and immediately discarded.",
+                title = stringResource(R.string.privacy_camera_permission_title),
+                description = stringResource(R.string.privacy_camera_permission_body),
                 cardBgColor = colorScheme.surface,
                 titleColor = colorScheme.onSurface,
                 descColor = colorScheme.appBodyText
@@ -121,8 +126,8 @@ fun PrivacyPolicyScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             PermissionInfoCard(
-                title = "Audio Permission (RECORD_AUDIO)",
-                description = "Optional and strictly requested only when you choose to transmit Morse code using voice-to-text. Voice data is processed locally using Google's Speech Recognizer API.",
+                title = stringResource(R.string.privacy_audio_permission_title),
+                description = stringResource(R.string.privacy_audio_permission_body),
                 cardBgColor = colorScheme.surface,
                 titleColor = colorScheme.onSurface,
                 descColor = colorScheme.appBodyText
@@ -131,17 +136,31 @@ fun PrivacyPolicyScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "CONTACT & INQUIRIES",
+                stringResource(R.string.privacy_contact_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = colorScheme.appSecondaryText,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "For any queries regarding this policy, security details, or bug reporting, feel free to contact us via the Developer Settings profile.",
+                stringResource(
+                    R.string.privacy_contact_body,
+                    stringResource(R.string.app_support_url)
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = colorScheme.appMutedText,
                 lineHeight = 16.sp
+            )
+            Text(
+                "Read Full Policy Online",
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .clickable {
+                        uriHandler.openUri(privacyUrl)
+                    },
+                style = MaterialTheme.typography.bodySmall,
+                color = colorScheme.primary,
+                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
             )
             Spacer(modifier = Modifier.height(24.dp))
         }

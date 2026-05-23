@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,6 +62,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,6 +72,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vanguard.flashmorse.R
 import com.vanguard.flashmorse.presentation.common.PermissionUtils
 import com.vanguard.flashmorse.ui.theme.appDrawerSelectedContainer
 import com.vanguard.flashmorse.ui.theme.appDrawerSelectedText
@@ -92,6 +96,7 @@ fun CommunicatorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
@@ -144,21 +149,21 @@ fun CommunicatorScreen(
             ) {
                 Spacer(Modifier.height(24.dp))
                 Text(
-                    "FLASH MORSE",
+                    stringResource(R.string.label_flash_morse),
                     modifier = Modifier.padding(horizontal = 28.dp),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = colorScheme.onSurface
                 )
                 Text(
-                    "v1.0.0",
+                    stringResource(R.string.label_version),
                     modifier = Modifier.padding(horizontal = 28.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = colorScheme.appSecondaryText
                 )
                 Spacer(Modifier.height(24.dp))
                 NavigationDrawerItem(
-                    label = { Text("Communicator") },
+                    label = { Text(stringResource(R.string.nav_communicator)) },
                     selected = true,
                     onClick = { scope.launch { drawerState.close() } },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -168,7 +173,7 @@ fun CommunicatorScreen(
                     )
                 )
                 NavigationDrawerItem(
-                    label = { Text("Morse Alphabet Guide") },
+                    label = { Text(stringResource(R.string.nav_morse_guide)) },
                     selected = false,
                     onClick = { navigateFromDrawer(onNavigateToMorseGuide) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -177,7 +182,7 @@ fun CommunicatorScreen(
                     )
                 )
                 NavigationDrawerItem(
-                    label = { Text("Communication History") },
+                    label = { Text(stringResource(R.string.nav_history)) },
                     selected = false,
                     onClick = { navigateFromDrawer(onNavigateToHistory) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -186,7 +191,7 @@ fun CommunicatorScreen(
                     )
                 )
                 NavigationDrawerItem(
-                    label = { Text("Settings") },
+                    label = { Text(stringResource(R.string.nav_settings)) },
                     selected = false,
                     onClick = { navigateFromDrawer(onNavigateToSettings) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -195,7 +200,7 @@ fun CommunicatorScreen(
                     )
                 )
                 NavigationDrawerItem(
-                    label = { Text("Privacy Policy") },
+                    label = { Text(stringResource(R.string.nav_privacy_policy)) },
                     selected = false,
                     onClick = { navigateFromDrawer(onNavigateToPrivacyPolicy) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -204,7 +209,7 @@ fun CommunicatorScreen(
                     )
                 )
                 NavigationDrawerItem(
-                    label = { Text("About App") },
+                    label = { Text(stringResource(R.string.nav_about_app)) },
                     selected = false,
                     onClick = { navigateFromDrawer(onNavigateToAbout) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -213,12 +218,33 @@ fun CommunicatorScreen(
                     )
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    "Help & Feedback",
-                    modifier = Modifier.padding(28.dp),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = colorScheme.appSecondaryText
-                )
+                val helpUrl = stringResource(R.string.app_help_url)
+                val feedbackUrl = stringResource(R.string.app_feedback_url)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(28.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        "Help",
+                        modifier = Modifier.clickable {
+                            uriHandler.openUri(helpUrl)
+                        },
+                        style = MaterialTheme.typography.labelMedium,
+                        color = colorScheme.appSecondaryText,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Feedback",
+                        modifier = Modifier.clickable {
+                            uriHandler.openUri(feedbackUrl)
+                        },
+                        style = MaterialTheme.typography.labelMedium,
+                        color = colorScheme.appSecondaryText,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     ) {
@@ -255,6 +281,7 @@ fun CommunicatorScreen(
                     MessageInputSection(
                         modifier = Modifier.weight(1f),
                         text = uiState.messageText,
+                        isVoiceListening = uiState.isVoiceListening,
                         onTextChange = viewModel::onMessageTextChanged,
                         onVoiceClick = {
                             if (!uiState.isVoiceListening) {
@@ -292,6 +319,21 @@ fun CommunicatorScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                ListeningModeSection(
+                    isListening = uiState.isReceivingFlashlight,
+                    onToggleListening = {
+                        if (uiState.isReceivingFlashlight) {
+                            viewModel.stopReceivingFlashlight()
+                        } else {
+                            viewModel.startReceivingFlashlight()
+                        }
+                    },
+                    cardBgColor = colorScheme.surface,
+                    textColor = colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Morse Signal Section
                 MorseSignalSection(
                     sendingSignal = uiState.sendingSignal,
@@ -321,14 +363,6 @@ fun CommunicatorScreen(
                 BottomControlsSection(
                     speed = uiState.durationMultiplier,
                     onSpeedChange = viewModel::onSpeedChanged,
-                    isListening = uiState.isReceivingFlashlight,
-                    onToggleListening = {
-                        if (uiState.isReceivingFlashlight) {
-                            viewModel.stopReceivingFlashlight()
-                        } else {
-                            viewModel.startReceivingFlashlight()
-                        }
-                    },
                     cardBgColor = colorScheme.surface,
                     textColor = colorScheme.onSurface
                 )
@@ -352,23 +386,23 @@ fun HeaderSection(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onMenuClick) {
-            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = primaryTextColor)
+            Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.cd_menu), tint = primaryTextColor)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "MORSE COMMUNICATOR",
+                text = stringResource(R.string.header_morse_communicator),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = primaryTextColor
             )
             Text(
-                text = "• LIGHT. SIGNAL. CONNECT. •",
+                text = stringResource(R.string.header_light_signal_connect),
                 style = MaterialTheme.typography.labelSmall,
                 color = secondaryTextColor
             )
         }
         IconButton(onClick = onSettingsClick) {
-            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = primaryTextColor)
+            Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.cd_settings), tint = primaryTextColor)
         }
     }
 }
@@ -377,6 +411,7 @@ fun HeaderSection(
 fun MessageInputSection(
     modifier: Modifier,
     text: String,
+    isVoiceListening: Boolean,
     onTextChange: (String) -> Unit,
     onVoiceClick: () -> Unit,
     onSendClick: () -> Unit,
@@ -392,7 +427,7 @@ fun MessageInputSection(
             .padding(12.dp)
     ) {
         Text(
-            "MESSAGE",
+            stringResource(R.string.message_title),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = textColor
@@ -419,7 +454,12 @@ fun MessageInputSection(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                placeholder = { Text("Enter text...", color = MaterialTheme.colorScheme.appMutedText) }
+                placeholder = {
+                    Text(
+                        stringResource(R.string.message_placeholder),
+                        color = MaterialTheme.colorScheme.appMutedText
+                    )
+                }
             )
         }
         Row(
@@ -434,7 +474,7 @@ fun MessageInputSection(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(4.dp)
             ) {
-                Text("TEST", color = Color.Black, fontSize = 10.sp)
+                Text(stringResource(R.string.button_test), color = Color.Black, fontSize = 10.sp)
             }
 
             FloatingActionButton(
@@ -444,8 +484,8 @@ fun MessageInputSection(
             ) {
                 Icon(
                     imageVector = Icons.Default.Mic,
-                    contentDescription = "Voice",
-                    tint = Color.Black,
+                    contentDescription = stringResource(R.string.cd_voice),
+                    tint = if (isVoiceListening) MaterialTheme.colorScheme.appReceiverGreen else Color.Black,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -457,7 +497,7 @@ fun MessageInputSection(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(4.dp)
             ) {
-                Text("SEND", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.button_send), color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -486,7 +526,7 @@ fun MorseSignalSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "MORSE SIGNAL",
+                stringResource(R.string.morse_signal_title),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -495,7 +535,7 @@ fun MorseSignalSection(
             // Signal Strength/Alignment Indicator
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "ALIGNMENT",
+                    stringResource(R.string.alignment_title),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.appMutedText,
                     fontSize = 8.sp
@@ -522,9 +562,9 @@ fun MorseSignalSection(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            SignalRow("SENDING", MaterialTheme.colorScheme.primary, sendingSignal)
+            SignalRow(stringResource(R.string.signal_sending), MaterialTheme.colorScheme.primary, sendingSignal)
             SignalRow(
-                label = "RECEIVING",
+                label = stringResource(R.string.signal_receiving),
                 color = MaterialTheme.colorScheme.appReceiverGreen,
                 signal = receivingSignal,
                 buffer = liveMorseBuffer
@@ -572,10 +612,11 @@ fun CommunicationLogSection(
     textColor: Color
 ) {
     val listState = rememberLazyListState()
+    val hasConversation = logs.isNotEmpty() || committedText.isNotEmpty()
 
     // Auto-scroll to bottom when new logs arrive or text is being committed
     LaunchedEffect(logs.size, committedText) {
-        if (logs.isNotEmpty() || committedText.isNotEmpty()) {
+        if (hasConversation) {
             listState.animateScrollToItem(if (committedText.isNotEmpty()) logs.size else logs.size - 1)
         }
     }
@@ -588,53 +629,91 @@ fun CommunicationLogSection(
             .padding(12.dp)
     ) {
         Text(
-            "COMMUNICATION LOG",
+            stringResource(R.string.communication_log_title),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = textColor
         )
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.appInputSurface)
-                .padding(8.dp)
-        ) {
-            items(logs) { entry ->
-                Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                    Text(entry.timestamp, color = MaterialTheme.colorScheme.appMutedText, fontSize = 10.sp)
-                    Spacer(Modifier.width(8.dp))
+        if (!hasConversation) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.65f))
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
-                        entry.type.name,
-                        color = if (entry.type == LogType.SENT) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.appReceiverGreen,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
+                        stringResource(R.string.communication_log_empty_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = textColor
                     )
-                    Spacer(Modifier.width(8.dp))
-                    Text(entry.message, color = MaterialTheme.colorScheme.onTertiary, fontSize = 12.sp)
+                    Text(
+                        stringResource(R.string.communication_log_empty_body),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.appMutedText
+                    )
                 }
             }
-
-            // Show live decoding text that hasn't been finalized yet
-            if (committedText.isNotEmpty()) {
-                item {
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.appInputSurface)
+                    .padding(8.dp)
+            ) {
+                items(logs) { entry ->
                     Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                        Text("--:--", color = MaterialTheme.colorScheme.appMutedText, fontSize = 10.sp)
+                        Text(
+                            entry.timestamp,
+                            color = MaterialTheme.colorScheme.appMutedText,
+                            fontSize = 10.sp
+                        )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            "TYPING",
-                            color = MaterialTheme.colorScheme.appReceiverGreen,
+                            entry.type.name,
+                            color = if (entry.type == LogType.SENT) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.appReceiverGreen,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            committedText,
-                            color = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.7f),
+                            entry.message,
+                            color = MaterialTheme.colorScheme.onTertiary,
                             fontSize = 12.sp
                         )
+                    }
+                }
+
+                // Show live decoding text that hasn't been finalized yet
+                if (committedText.isNotEmpty()) {
+                    item {
+                        Row(modifier = Modifier.padding(vertical = 4.dp)) {
+                            Text(
+                                "--:--",
+                                color = MaterialTheme.colorScheme.appMutedText,
+                                fontSize = 10.sp
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                stringResource(R.string.communication_log_typing),
+                                color = MaterialTheme.colorScheme.appReceiverGreen,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                committedText,
+                                color = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.7f),
+                                fontSize = 12.sp
+                            )
+                        }
                     }
                 }
             }
@@ -646,8 +725,6 @@ fun CommunicationLogSection(
 fun BottomControlsSection(
     speed: Float,
     onSpeedChange: (Float) -> Unit,
-    isListening: Boolean,
-    onToggleListening: () -> Unit,
     cardBgColor: Color,
     textColor: Color
 ) {
@@ -672,7 +749,7 @@ fun BottomControlsSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "TRANSMISSION UNIT (SPEED)",
+                    stringResource(R.string.transmission_unit_title),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     color = textColor
@@ -692,46 +769,54 @@ fun BottomControlsSection(
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
-                "Sync this value with the other device for accurate decoding",
+                stringResource(R.string.transmission_unit_hint),
                 fontSize = 10.sp,
                 color = MaterialTheme.colorScheme.appMutedText
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
 
-        // Mode Listening - Horizontal Layout
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(cardBgColor)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "LISTENING MODE",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = textColor
-                )
-                Text(
-                    "Decodes incoming light signals when active.",
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.appMutedText
-                )
-            }
-            Switch(
-                checked = isListening,
-                onCheckedChange = { onToggleListening() },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                    uncheckedThumbColor = MaterialTheme.colorScheme.appSwitchUncheckedThumb,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.appSwitchUncheckedTrack
-                )
+@Composable
+fun ListeningModeSection(
+    isListening: Boolean,
+    onToggleListening: () -> Unit,
+    cardBgColor: Color,
+    textColor: Color
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(cardBgColor)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.listening_mode_title),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = textColor
+            )
+            Text(
+                stringResource(R.string.listening_mode_body),
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.appMutedText
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Switch(
+            checked = isListening,
+            onCheckedChange = { onToggleListening() },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                uncheckedThumbColor = MaterialTheme.colorScheme.appSwitchUncheckedThumb,
+                uncheckedTrackColor = MaterialTheme.colorScheme.appSwitchUncheckedTrack
+            )
+        )
     }
 }

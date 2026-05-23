@@ -1,3 +1,105 @@
 <resources>
     <string name="app_name">Flash Morse</string>
+    <string name="app_support_url">https://flashmorse.netlify.app/</string>
+    <string name="app_help_url">https://flashmorse.netlify.app/help</string>
+    <string name="app_feedback_url">https://flashmorse.netlify.app/feedback</string>
+    <string name="app_privacy_url">https://flashmorse.netlify.app/privacy</string>
+    <string name="app_terms_url">https://flashmorse.netlify.app/terms</string>
+
+    <string name="cd_back">Back</string>
+    <string name="cd_menu">Menu</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_voice">Voice</string>
+    <string name="cd_code">Code</string>
+    <string name="cd_licensing">Licensing</string>
+    <string name="cd_empty_history">Empty History</string>
+    <string name="cd_clear_all">Clear All</string>
+
+    <string name="nav_communicator">Communicator</string>
+    <string name="nav_morse_guide">Morse Alphabet Guide</string>
+    <string name="nav_history">Communication History</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_privacy_policy">Privacy Policy</string>
+    <string name="nav_about_app">About App</string>
+    <string name="nav_help_feedback">Help &amp; Feedback</string>
+
+    <string name="header_morse_communicator">MORSE COMMUNICATOR</string>
+    <string name="header_light_signal_connect">• LIGHT. SIGNAL. CONNECT. •</string>
+    <string name="label_flash_morse">FLASH MORSE</string>
+    <string name="label_version">v1.0.0</string>
+    <string name="label_version_full">Version 1.0.0</string>
+    <string name="label_flash_morse_version">Flash Morse v1.0.0</string>
+    <string name="label_copyright">© 2026 Vanguard. All rights reserved.</string>
+
+    <string name="message_title">MESSAGE</string>
+    <string name="message_placeholder">Enter text…</string>
+    <string name="button_test">TEST</string>
+    <string name="button_send">SEND</string>
+    <string name="receiver_cam_roi">RECEIVER CAM (ROI)</string>
+    <string name="button_grant_camera_permission">Grant Camera Permission</string>
+    <string name="morse_signal_title">MORSE SIGNAL</string>
+    <string name="alignment_title">ALIGNMENT</string>
+    <string name="signal_sending">SENDING</string>
+    <string name="signal_receiving">RECEIVING</string>
+    <string name="communication_log_title">COMMUNICATION LOG</string>
+    <string name="communication_log_empty_title">No messages yet</string>
+    <string name="communication_log_empty_body">Sent and received conversations will appear here.</string>
+    <string name="communication_log_typing">TYPING</string>
+    <string name="transmission_unit_title">TRANSMISSION UNIT (SPEED)</string>
+    <string name="transmission_unit_hint">Sync this value with the other device for accurate decoding</string>
+    <string name="listening_mode_title">LISTENING MODE</string>
+    <string name="listening_mode_body">Decodes incoming light signals when active.</string>
+
+    <string name="settings_title">SETTINGS</string>
+    <string name="settings_general">GENERAL</string>
+    <string name="settings_transmission">TRANSMISSION</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_dark_mode_desc">Use dark theme for the interface</string>
+    <string name="settings_vibration">Flashlight Vibration</string>
+    <string name="settings_vibration_desc">Vibrate device while transmitting</string>
+    <string name="settings_sound_feedback">Sound Feedback</string>
+    <string name="settings_sound_feedback_desc">Play beeps during signal detection</string>
+
+    <string name="history_title">COMMUNICATION HISTORY</string>
+    <string name="history_clear_title">Clear History</string>
+    <string name="history_clear_body">Are you sure you want to permanently delete all communication history logs?</string>
+    <string name="history_clear_confirm">CLEAR</string>
+    <string name="history_clear_cancel">CANCEL</string>
+    <string name="history_empty_title">No logged communications yet.</string>
+    <string name="history_empty_body">Transmitted &amp; received Morse signals will appear here.</string>
+
+    <string name="privacy_title">PRIVACY POLICY</string>
+    <string name="privacy_security_title">DATA &amp; SECURITY ASSURANCE</string>
+    <string name="privacy_on_device_title">On-Device Processing &amp; Local Storage</string>
+    <string name="privacy_on_device_body">FlashMorse uses your device camera to analyze light pulses and can use your microphone when you choose voice input. Signal analysis and app logic run on-device. The app does not upload image frames, audio recordings, or message logs to remote cloud servers. Communication history may be stored locally on your device until you clear it.</string>
+    <string name="privacy_permissions_title">HARDWARE PERMISSIONS USED</string>
+    <string name="privacy_camera_permission_title">Camera Permission (CAMERA)</string>
+    <string name="privacy_camera_permission_body">Required to capture ambient light pulses and decode flashing sequences in real-time. Video frames are analyzed locally and immediately discarded after processing.</string>
+    <string name="privacy_audio_permission_title">Audio Permission (RECORD_AUDIO)</string>
+    <string name="privacy_audio_permission_body">Optional and requested only when you choose voice-to-text transmission. Speech input is handled through the device speech recognition service available on the user’s device, which may vary by device and configuration.</string>
+    <string name="privacy_contact_title">CONTACT &amp; INQUIRIES</string>
+    <string name="privacy_contact_body">For questions about privacy, support, or developer information, please visit: %1$s</string>
+
+    <string name="about_title">ABOUT FLASHMORSE</string>
+    <string name="about_brand_mark">• --</string>
+    <string name="about_mission_title">Mission</string>
+    <string name="about_mission_body">FlashMorse is a real-time light signal communicator that uses camera-based optical analysis for Morse decoding and the device flashlight for optical transmission. It is designed to be responsive and practical for local optical communication experiments.</string>
+    <string name="about_stack_title">Architecture &amp; Stack</string>
+    <string name="about_stack_ui_framework">UI Framework</string>
+    <string name="about_stack_ui_framework_value">Jetpack Compose &amp; Material 3</string>
+    <string name="about_stack_async_flow">Asynchronous Flow</string>
+    <string name="about_stack_async_flow_value">Kotlin Coroutines &amp; Flow</string>
+    <string name="about_stack_di">Dependency Injection</string>
+    <string name="about_stack_di_value">Dagger Hilt</string>
+    <string name="about_stack_camera">Camera System</string>
+    <string name="about_stack_camera_value">Android Jetpack CameraX</string>
+    <string name="about_stack_audio">Audio/Speech Engine</string>
+    <string name="about_stack_audio_value">Android SpeechRecognizer</string>
+    <string name="about_licensing_title">Open Source Licensing</string>
+    <string name="about_licensing_body">This application uses third-party Android and Kotlin libraries that are distributed under their respective open-source licenses. Library availability and license details depend on the dependencies included in the build.</string>
+
+    <string name="guide_title">MORSE ALPHABET GUIDE</string>
+    <string name="guide_tab_letters">LETTERS</string>
+    <string name="guide_tab_numbers">NUMBERS</string>
+    <string name="guide_tab_symbols">SYMBOLS</string>
 </resources>

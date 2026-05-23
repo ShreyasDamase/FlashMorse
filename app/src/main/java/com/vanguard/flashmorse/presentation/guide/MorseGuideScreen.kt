@@ -39,11 +39,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.vanguard.flashmorse.R
 import com.vanguard.flashmorse.ui.theme.FlashOrange
 import kotlinx.coroutines.launch
 
@@ -57,7 +58,11 @@ fun MorseGuideScreen(
     val colorScheme = MaterialTheme.colorScheme
     val coroutineScope = rememberCoroutineScope()
     
-    val tabs = listOf("LETTERS", "NUMBERS", "SYMBOLS")
+    val tabs = listOf(
+        stringResource(R.string.guide_tab_letters),
+        stringResource(R.string.guide_tab_numbers),
+        stringResource(R.string.guide_tab_symbols)
+    )
     val pagerState = rememberPagerState(pageCount = { tabs.size })
 
     val letters = listOf(
@@ -91,10 +96,10 @@ fun MorseGuideScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("MORSE ALPHABET GUIDE", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.guide_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorScheme.onBackground)
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_back), tint = colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
