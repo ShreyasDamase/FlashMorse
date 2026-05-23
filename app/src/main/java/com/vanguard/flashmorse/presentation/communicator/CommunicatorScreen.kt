@@ -100,6 +100,13 @@ fun CommunicatorScreen(
     val textFieldBgColor =
         if (isDark) Color(0xFF1E1E1E) else Color(0xFF1E1E1E) // keep input dark for high contrast
 
+    fun navigateFromDrawer(navigate: () -> Unit) {
+        scope.launch {
+            drawerState.close()
+            navigate()
+        }
+    }
+
     var hasCameraPermission by remember {
         mutableStateOf(PermissionUtils.isPermissionGranted(context, Manifest.permission.CAMERA))
     }
@@ -167,10 +174,7 @@ fun CommunicatorScreen(
                 NavigationDrawerItem(
                     label = { Text("Morse Alphabet Guide") },
                     selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onNavigateToMorseGuide()
-                    },
+                    onClick = { navigateFromDrawer(onNavigateToMorseGuide) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
                         unselectedTextColor = primaryTextColor
@@ -179,10 +183,7 @@ fun CommunicatorScreen(
                 NavigationDrawerItem(
                     label = { Text("Communication History") },
                     selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onNavigateToHistory()
-                    },
+                    onClick = { navigateFromDrawer(onNavigateToHistory) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
                         unselectedTextColor = primaryTextColor
@@ -191,10 +192,7 @@ fun CommunicatorScreen(
                 NavigationDrawerItem(
                     label = { Text("Settings") },
                     selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onNavigateToSettings()
-                    },
+                    onClick = { navigateFromDrawer(onNavigateToSettings) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
                         unselectedTextColor = primaryTextColor
@@ -203,10 +201,7 @@ fun CommunicatorScreen(
                 NavigationDrawerItem(
                     label = { Text("Privacy Policy") },
                     selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onNavigateToPrivacyPolicy()
-                    },
+                    onClick = { navigateFromDrawer(onNavigateToPrivacyPolicy) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
                         unselectedTextColor = primaryTextColor
@@ -215,10 +210,7 @@ fun CommunicatorScreen(
                 NavigationDrawerItem(
                     label = { Text("About App") },
                     selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onNavigateToAbout()
-                    },
+                    onClick = { navigateFromDrawer(onNavigateToAbout) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
                         unselectedTextColor = primaryTextColor

@@ -1,10 +1,16 @@
 package com.vanguard.flashmorse.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.vanguard.flashmorse.presentation.communicator.CommunicatorScreen
 import com.vanguard.flashmorse.presentation.settings.SettingsScreen
 import com.vanguard.flashmorse.presentation.policy.PrivacyPolicyScreen
@@ -17,27 +23,54 @@ fun NavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+    val currentRoute = currentBackStackEntry?.destination?.route
+
     NavHost(
         navController = navController,
         startDestination = Screen.Communicator,
         modifier = modifier,
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(220)
+            ) + fadeIn(animationSpec = tween(180))
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(220)
+            ) + fadeOut(animationSpec = tween(140))
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(220)
+            ) + fadeIn(animationSpec = tween(180))
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(220)
+            ) + fadeOut(animationSpec = tween(140))
+        }
     ) {
         composable<Screen.Communicator> {
             CommunicatorScreen(
                 onNavigateToSettings = {
-                    navController.navigate(Screen.Settings)
+                    navController.navigateSafely(Screen.Settings, currentRoute)
                 },
                 onNavigateToMorseGuide = {
-                    navController.navigate(Screen.MorseGuide)
+                    navController.navigateSafely(Screen.MorseGuide, currentRoute)
                 },
                 onNavigateToPrivacyPolicy = {
-                    navController.navigate(Screen.PrivacyPolicy)
+                    navController.navigateSafely(Screen.PrivacyPolicy, currentRoute)
                 },
                 onNavigateToHistory = {
-                    navController.navigate(Screen.History)
+                    navController.navigateSafely(Screen.History, currentRoute)
                 },
                 onNavigateToAbout = {
-                    navController.navigate(Screen.About)
+                    navController.navigateSafely(Screen.About, currentRoute)
                 }
             )
         }
@@ -82,4 +115,17 @@ fun NavGraph(
             )
         }
     }
+}
+
+private fun NavHostController.navigateSafely(
+    screen: Screen,
+    currentRoute: String?
+) {
+    val targetRoute = screen::class.qualifiedName ?: return
+    if (currentRoute == targetRoute) return
+
+    navigate(screen, navOptions = navOptions {
+        launchSingleTop = true
+        popUpTo(graph.startDestinationId)
+    })
 }
