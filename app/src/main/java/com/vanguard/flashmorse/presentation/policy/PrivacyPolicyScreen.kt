@@ -23,34 +23,48 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.vanguard.flashmorse.presentation.settings.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrivacyPolicyScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val isDark by settingsViewModel.isDarkMode.collectAsState()
+
+    val backgroundColor = if (isDark) Color(0xFF000000) else Color(0xFFE8DFD3)
+    val cardBackgroundColor = if (isDark) Color(0xFF121212) else Color(0xFFF2ECE4)
+    val primaryTextColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF4A453E)
+    val secondaryTextColor = if (isDark) Color(0xFFB0B0B0) else Color(0xFF8B8479)
+    val cardBodyColor = if (isDark) Color(0xFFE0E0E0) else Color.DarkGray
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("PRIVACY POLICY", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = primaryTextColor)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE8DFD3),
-                    titleContentColor = Color(0xFF4A453E)
+                    containerColor = backgroundColor,
+                    titleContentColor = primaryTextColor
                 )
             )
         },
-        containerColor = Color(0xFFE8DFD3)
+        containerColor = backgroundColor
     ) { padding ->
         Column(
             modifier = Modifier
@@ -62,7 +76,7 @@ fun PrivacyPolicyScreen(
             Text(
                 "DATA & SECURITY ASSURANCE",
                 style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF8B8479),
+                color = secondaryTextColor,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -72,7 +86,7 @@ fun PrivacyPolicyScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFF2ECE4)
+                    containerColor = cardBackgroundColor
                 )
             ) {
                 Column(
@@ -82,13 +96,13 @@ fun PrivacyPolicyScreen(
                         "100% On-Device Processing",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4A453E)
+                        color = primaryTextColor
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "FlashMorse utilizes your device's Camera and Microphone hardware to decode light signal fluctuations and capture voice inputs. We strictly respect your privacy: ALL operations, calculations, and decoding runs are performed locally on your device in real-time. Absolutely zero image frames, audio recordings, or text logs are sent, stored, or processed on remote cloud servers.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.DarkGray,
+                        color = cardBodyColor,
                         lineHeight = 20.sp
                     )
                 }
@@ -99,21 +113,27 @@ fun PrivacyPolicyScreen(
             Text(
                 "HARDWARE PERMISSIONS USED",
                 style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF8B8479),
+                color = secondaryTextColor,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(12.dp))
 
             PermissionInfoCard(
                 title = "Camera Permission (CAMERA)",
-                description = "Required to capture ambient light pulses and decode flashing sequences in real-time. Video frames are analyzed stream-by-stream locally and immediately discarded."
+                description = "Required to capture ambient light pulses and decode flashing sequences in real-time. Video frames are analyzed stream-by-stream locally and immediately discarded.",
+                cardBgColor = cardBackgroundColor,
+                titleColor = primaryTextColor,
+                descColor = cardBodyColor
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             PermissionInfoCard(
                 title = "Audio Permission (RECORD_AUDIO)",
-                description = "Optional and strictly requested only when you choose to transmit Morse code using voice-to-text. Voice data is processed locally using Google's Speech Recognizer API."
+                description = "Optional and strictly requested only when you choose to transmit Morse code using voice-to-text. Voice data is processed locally using Google's Speech Recognizer API.",
+                cardBgColor = cardBackgroundColor,
+                titleColor = primaryTextColor,
+                descColor = cardBodyColor
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -121,14 +141,14 @@ fun PrivacyPolicyScreen(
             Text(
                 "CONTACT & INQUIRIES",
                 style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF8B8479),
+                color = secondaryTextColor,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 "For any queries regarding this policy, security details, or bug reporting, feel free to contact us via the Developer Settings profile.",
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
+                color = if (isDark) Color(0xFF888888) else Color.Gray,
                 lineHeight = 16.sp
             )
             Spacer(modifier = Modifier.height(24.dp))
@@ -139,20 +159,23 @@ fun PrivacyPolicyScreen(
 @Composable
 fun PermissionInfoCard(
     title: String,
-    description: String
+    description: String,
+    cardBgColor: Color,
+    titleColor: Color,
+    descColor: Color
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp)),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF2ECE4)
+            containerColor = cardBgColor
         )
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = Color(0xFF4A453E))
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = titleColor)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(description, style = MaterialTheme.typography.bodySmall, color = Color.Gray, lineHeight = 18.sp)
+            Text(description, style = MaterialTheme.typography.bodySmall, color = descColor, lineHeight = 18.sp)
         }
     }
 }

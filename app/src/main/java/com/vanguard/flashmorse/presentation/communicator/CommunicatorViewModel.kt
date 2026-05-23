@@ -124,6 +124,7 @@ class CommunicatorViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         speechRecognitionManager.destroy()
+        toneGenerator?.release()
     }
 
     fun onPartialReceivedTextUpdate(text: String) {
@@ -208,6 +209,28 @@ class CommunicatorViewModel @Inject constructor(
         flashlightDataSource.setCameraControl(control)
     }
 
+    private var lastDetectedSignalOn = false
+    private var toneGenerator: android.media.ToneGenerator? = null
+
+    private fun playBeepIfEnabled() {
+        val sharedPrefs = application.getSharedPreferences("flashmorse_prefs", Context.MODE_PRIVATE)
+        val soundEnabled = sharedPrefs.getBoolean("sound_feedback", true)
+        if (soundEnabled) {
+            if (toneGenerator == null) {
+                try {
+                    toneGenerator = android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 80)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            try {
+                toneGenerator?.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 80)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun onBrightnessDetected(brightness: Double) {
         val previousState = _uiState.value
         if (!previousState.isReceivingFlashlight) return
@@ -215,6 +238,12 @@ class CommunicatorViewModel @Inject constructor(
         // Normalize brightness for signal strength (0.0 to 1.0)
         // Assuming 255 is max brightness from Y-plane
         val strength = (brightness / 255.0).coerceIn(0.0, 1.0).toFloat()
+
+        val currentIsOn = morseDecoder.isSignalOn(brightness)
+        if (currentIsOn && !lastDetectedSignalOn) {
+            playBeepIfEnabled()
+        }
+        lastDetectedSignalOn = currentIsOn
 
         val decodedChar = morseDecoder.processBrightness(
             brightness = brightness,

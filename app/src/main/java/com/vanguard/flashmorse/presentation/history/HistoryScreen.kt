@@ -50,17 +50,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.AndroidViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vanguard.flashmorse.presentation.communicator.LogEntry
 import com.vanguard.flashmorse.presentation.communicator.LogType
+import com.vanguard.flashmorse.presentation.settings.SettingsViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import javax.inject.Inject
 
-class HistoryViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class HistoryViewModel @Inject constructor(
+    private val application: Application
+) : ViewModel() {
     private val sharedPrefs = application.getSharedPreferences("flashmorse_prefs", Context.MODE_PRIVATE)
     
     private val _historyLogs = MutableStateFlow<List<LogEntry>>(emptyList())
@@ -74,9 +79,6 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         val serializedLogs = sharedPrefs.getString("comms_history", null)
         if (serializedLogs != null) {
             try {
-                // Since LogEntry is not directly @Serializable, we can parse it as custom structure or serialize manually
-                // To keep it simple and compile-safe without editing structural models, let's parse a comma-separated format
-                // or standard JSON map list. Let's serialize manually to prevent build dependencies.
                 val logsList = mutableListOf<LogEntry>()
                 val jsonArray = Json.parseToJsonElement(serializedLogs)
                 if (jsonArray is kotlinx.serialization.json.JsonArray) {
@@ -107,10 +109,18 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 @Composable
 fun HistoryScreen(
     onBackClick: () -> Unit,
-    viewModel: HistoryViewModel = viewModel()
+    viewModel: HistoryViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val logs by viewModel.historyLogs.collectAsState()
+    val isDark by settingsViewModel.isDarkMode.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val backgroundColor = if (isDark) Color(0xFF000000) else Color(0xFFE8DFD3)
+    val cardBackgroundColor = if (isDark) Color(0xFF121212) else Color(0xFFF2ECE4)
+    val primaryTextColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF4A453E)
+    val secondaryTextColor = if (isDark) Color(0xFFB0B0B0) else Color(0xFF8B8479)
+    val cardBodyColor = if (isDark) Color(0xFFE0E0E0) else Color.DarkGray
 
     if (showDeleteDialog) {
         AlertDialog(
@@ -129,12 +139,12 @@ fun HistoryScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("CANCEL")
+                    Text("CANCEL", color = if (isDark) Color.LightGray else Color.Gray)
                 }
             },
-            containerColor = Color(0xFFF2ECE4),
-            titleContentColor = Color(0xFF4A453E),
-            textContentColor = Color.DarkGray
+            containerColor = cardBackgroundColor,
+            titleContentColor = primaryTextColor,
+            textContentColor = cardBodyColor
         )
     }
 
@@ -144,23 +154,23 @@ fun HistoryScreen(
                 title = { Text("COMMUNICATION HISTORY", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = primaryTextColor)
                     }
                 },
                 actions = {
                     if (logs.isNotEmpty()) {
                         IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Clear All", tint = Color(0xFF4A453E))
+                            Icon(Icons.Default.Delete, contentDescription = "Clear All", tint = primaryTextColor)
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE8DFD3),
-                    titleContentColor = Color(0xFF4A453E)
+                    containerColor = backgroundColor,
+                    titleContentColor = primaryTextColor
                 )
             )
         },
-        containerColor = Color(0xFFE8DFD3)
+        containerColor = backgroundColor
     ) { padding ->
         Column(
             modifier = Modifier
@@ -202,7 +212,7 @@ fun HistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(logs.reversed()) { entry ->
-                        HistoryLogItem(entry)
+                        HistoryLogItem(entry, cardBackgroundColor, primaryTextColor, cardBodyColor, isDark)
                     }
                 }
             }
@@ -211,7 +221,13 @@ fun HistoryScreen(
 }
 
 @Composable
-fun HistoryLogItem(entry: LogEntry) {
+fun HistoryLogItem(
+    entry: LogEntry,
+    cardBgColor: Color,
+    titleColor: Color,
+    bodyColor: Color,
+    isDark: Boolean
+) {
     val typeColor = if (entry.type == LogType.SENT) Color(0xFFFFA500) else Color(0xFF4CAF50)
     
     Card(
@@ -219,7 +235,7 @@ fun HistoryLogItem(entry: LogEntry) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp)),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF2ECE4)
+            containerColor = cardBgColor
         )
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -236,14 +252,14 @@ fun HistoryLogItem(entry: LogEntry) {
                 )
                 Text(
                     text = entry.timestamp,
-                    color = Color.Gray,
+                    color = if (isDark) Color(0xFF888888) else Color.Gray,
                     fontSize = 10.sp
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = entry.message,
-                color = Color(0xFF4A453E),
+                color = titleColor,
                 fontSize = 14.sp,
                 lineHeight = 20.sp
             )

@@ -29,23 +29,31 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,17 +69,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vanguard.flashmorse.presentation.common.PermissionUtils
-import java.util.Locale
-
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.rememberCoroutineScope
+import com.vanguard.flashmorse.presentation.settings.SettingsViewModel
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
 fun CommunicatorScreen(
@@ -87,6 +89,16 @@ fun CommunicatorScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    // Observe theme settings
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val isDark by settingsViewModel.isDarkMode.collectAsStateWithLifecycle()
+
+    val backgroundColor = if (isDark) Color(0xFF000000) else Color(0xFFE8DFD3)
+    val cardBackgroundColor = if (isDark) Color(0xFF121212) else Color(0xFFF2ECE4)
+    val primaryTextColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF4A453E)
+    val secondaryTextColor = if (isDark) Color(0xFFB0B0B0) else Color(0xFF8B8479)
+    val textFieldBgColor =
+        if (isDark) Color(0xFF1E1E1E) else Color(0xFF1E1E1E) // keep input dark for high contrast
 
     var hasCameraPermission by remember {
         mutableStateOf(PermissionUtils.isPermissionGranted(context, Manifest.permission.CAMERA))
@@ -124,7 +136,7 @@ fun CommunicatorScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = Color(0xFFF2ECE4),
+                drawerContainerColor = cardBackgroundColor,
                 drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
             ) {
                 Spacer(Modifier.height(24.dp))
@@ -133,13 +145,13 @@ fun CommunicatorScreen(
                     modifier = Modifier.padding(horizontal = 28.dp),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A453E)
+                    color = primaryTextColor
                 )
                 Text(
                     "v1.0.0",
                     modifier = Modifier.padding(horizontal = 28.dp),
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
+                    color = secondaryTextColor
                 )
                 Spacer(Modifier.height(24.dp))
                 NavigationDrawerItem(
@@ -148,68 +160,68 @@ fun CommunicatorScreen(
                     onClick = { scope.launch { drawerState.close() } },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFE8DFD3),
-                        selectedTextColor = Color(0xFF4A453E)
+                        selectedContainerColor = if (isDark) Color(0xFF222222) else Color(0xFFE8DFD3),
+                        selectedTextColor = if (isDark) Color(0xFFFFA500) else Color(0xFF4A453E)
                     )
                 )
                 NavigationDrawerItem(
                     label = { Text("Morse Alphabet Guide") },
                     selected = false,
-                    onClick = { 
+                    onClick = {
                         scope.launch { drawerState.close() }
                         onNavigateToMorseGuide()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
-                        unselectedTextColor = Color(0xFF4A453E)
+                        unselectedTextColor = primaryTextColor
                     )
                 )
                 NavigationDrawerItem(
                     label = { Text("Communication History") },
                     selected = false,
-                    onClick = { 
+                    onClick = {
                         scope.launch { drawerState.close() }
                         onNavigateToHistory()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
-                        unselectedTextColor = Color(0xFF4A453E)
+                        unselectedTextColor = primaryTextColor
                     )
                 )
                 NavigationDrawerItem(
                     label = { Text("Settings") },
                     selected = false,
-                    onClick = { 
+                    onClick = {
                         scope.launch { drawerState.close() }
                         onNavigateToSettings()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
-                        unselectedTextColor = Color(0xFF4A453E)
+                        unselectedTextColor = primaryTextColor
                     )
                 )
                 NavigationDrawerItem(
                     label = { Text("Privacy Policy") },
                     selected = false,
-                    onClick = { 
+                    onClick = {
                         scope.launch { drawerState.close() }
                         onNavigateToPrivacyPolicy()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
-                        unselectedTextColor = Color(0xFF4A453E)
+                        unselectedTextColor = primaryTextColor
                     )
                 )
                 NavigationDrawerItem(
                     label = { Text("About App") },
                     selected = false,
-                    onClick = { 
+                    onClick = {
                         scope.launch { drawerState.close() }
                         onNavigateToAbout()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
-                        unselectedTextColor = Color(0xFF4A453E)
+                        unselectedTextColor = primaryTextColor
                     )
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -217,14 +229,14 @@ fun CommunicatorScreen(
                     "Help & Feedback",
                     modifier = Modifier.padding(28.dp),
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color.Gray
+                    color = secondaryTextColor
                 )
             }
         }
     ) {
         Surface(
-            modifier = Modifier
-                .fillMaxSize(), color = Color(0xFFE8DFD3)
+            modifier = Modifier.fillMaxSize(),
+            color = backgroundColor
         ) {
             Column(
                 modifier = Modifier
@@ -237,121 +249,139 @@ fun CommunicatorScreen(
                 // Header
                 HeaderSection(
                     onMenuClick = { scope.launch { drawerState.open() } },
-                    onSettingsClick = onNavigateToSettings
+                    onSettingsClick = onNavigateToSettings,
+                    primaryTextColor = primaryTextColor,
+                    secondaryTextColor = secondaryTextColor
                 )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Message and Camera View Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                MessageInputSection(
-                    modifier = Modifier.weight(1f),
-                    text = uiState.messageText,
-                    onTextChange = viewModel::onMessageTextChanged,
-                    onVoiceClick = {
-                        if (!uiState.isVoiceListening) {
-                            val granted = PermissionUtils.isPermissionGranted(
-                                context = context, Manifest.permission.RECORD_AUDIO
-                            )
-                            if (granted) {
-                                viewModel.startVoiceListening()
+                // Message and Camera View Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    MessageInputSection(
+                        modifier = Modifier.weight(1f),
+                        text = uiState.messageText,
+                        onTextChange = viewModel::onMessageTextChanged,
+                        onVoiceClick = {
+                            if (!uiState.isVoiceListening) {
+                                val granted = PermissionUtils.isPermissionGranted(
+                                    context = context, Manifest.permission.RECORD_AUDIO
+                                )
+                                if (granted) {
+                                    viewModel.startVoiceListening()
+                                } else {
+                                    audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                }
                             } else {
-                                audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                viewModel.stopVoiceListening()
                             }
-                        } else {
-                            viewModel.stopVoiceListening()
+                        },
+                        onSendClick = viewModel::onSendMessage,
+                        onTestClick = viewModel::testFlashlight,
+                        cardBgColor = cardBackgroundColor,
+                        textColor = primaryTextColor,
+                        inputBgColor = textFieldBgColor
+                    )
+                    CameraViewSection(
+                        modifier = Modifier.weight(1f),
+                        hasCameraPermission = hasCameraPermission,
+                        onRequestPermission = {
+                            cameraPermissionLauncher.launch(
+                                Manifest.permission.CAMERA
+                            )
+                        },
+                        onCameraControlReady = viewModel::onCameraControlReady,
+                        onBrightnessDetected = viewModel::onBrightnessDetected,
+                        signalStrength = uiState.signalStrength
+                    )
+                }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Morse Signal Section
+                MorseSignalSection(
+                    sendingSignal = uiState.sendingSignal,
+                    receivingSignal = uiState.receivingSignal,
+                    liveMorseBuffer = uiState.liveMorseBuffer,
+                    signalStrength = uiState.signalStrength,
+                    cardBgColor = cardBackgroundColor,
+                    textColor = primaryTextColor
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Communication Log Section
+                CommunicationLogSection(
+                    modifier = Modifier
+                        .height(200.dp)
+                        .padding(horizontal = 16.dp),
+                    logs = uiState.communicationLog,
+                    committedText = uiState.committedReceivedText,
+                    cardBgColor = cardBackgroundColor,
+                    textColor = primaryTextColor
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Bottom Controls
+                BottomControlsSection(
+                    speed = uiState.durationMultiplier,
+                    onSpeedChange = viewModel::onSpeedChanged,
+                    isListening = uiState.isReceivingFlashlight,
+                    onToggleListening = {
+                        if (uiState.isReceivingFlashlight) {
+                            viewModel.stopReceivingFlashlight()
+                        } else {
+                            viewModel.startReceivingFlashlight()
                         }
                     },
-                    onSendClick = viewModel::onSendMessage,
-                    onTestClick = viewModel::testFlashlight
-                )
-                CameraViewSection(
-                    modifier = Modifier.weight(1f),
-                    hasCameraPermission = hasCameraPermission,
-                    onRequestPermission = {
-                        cameraPermissionLauncher.launch(
-                            Manifest.permission.CAMERA
-                        )
-                    },
-                    onCameraControlReady = viewModel::onCameraControlReady,
-                    onBrightnessDetected = viewModel::onBrightnessDetected,
-                    signalStrength = uiState.signalStrength
+                    cardBgColor = cardBackgroundColor,
+                    textColor = primaryTextColor,
+                    isDark = isDark
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Morse Signal Section
-            MorseSignalSection(
-                sendingSignal = uiState.sendingSignal,
-                receivingSignal = uiState.receivingSignal,
-                liveMorseBuffer = uiState.liveMorseBuffer,
-                signalStrength = uiState.signalStrength
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Communication Log Section
-            CommunicationLogSection(
-                modifier = Modifier.weight(1f),
-                logs = uiState.communicationLog,
-                committedText = uiState.committedReceivedText
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Bottom Controls
-            BottomControlsSection(
-                speed = uiState.durationMultiplier,
-                onSpeedChange = viewModel::onSpeedChanged,
-                isListening = uiState.isReceivingFlashlight,
-                onToggleListening = {
-                    if (uiState.isReceivingFlashlight) {
-                        viewModel.stopReceivingFlashlight()
-                    } else {
-                        viewModel.startReceivingFlashlight()
-                    }
-                }
-            )
         }
-    }
     }
 }
 
 @Composable
 fun HeaderSection(
     onMenuClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    primaryTextColor: Color,
+    secondaryTextColor: Color
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onMenuClick) {
-            Icon(Icons.Default.Menu, contentDescription = "Menu")
+            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = primaryTextColor)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "MORSE COMMUNICATOR",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF4A453E)
+                color = primaryTextColor
             )
             Text(
                 text = "• LIGHT. SIGNAL. CONNECT. •",
                 style = MaterialTheme.typography.labelSmall,
-                color = Color(0xFF8B8479)
+                color = secondaryTextColor
             )
         }
         IconButton(onClick = onSettingsClick) {
-            Icon(Icons.Default.Settings, contentDescription = "Settings")
+            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = primaryTextColor)
         }
     }
 }
@@ -363,22 +393,30 @@ fun MessageInputSection(
     onTextChange: (String) -> Unit,
     onVoiceClick: () -> Unit,
     onSendClick: () -> Unit,
-    onTestClick: () -> Unit
+    onTestClick: () -> Unit,
+    cardBgColor: Color,
+    textColor: Color,
+    inputBgColor: Color
 ) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF2ECE4))
+            .background(cardBgColor)
             .padding(12.dp)
     ) {
-        Text("MESSAGE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+        Text(
+            "MESSAGE",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = textColor
+        )
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFF1E1E1E))
+                .background(inputBgColor)
                 .padding(8.dp)
         ) {
             TextField(
@@ -418,7 +456,7 @@ fun MessageInputSection(
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Mic,
+                    imageVector = Icons.Default.Mic,
                     contentDescription = "Voice",
                     tint = Color.Black,
                     modifier = Modifier.size(20.dp)
@@ -438,19 +476,21 @@ fun MessageInputSection(
     }
 }
 
-
 @Composable
 fun MorseSignalSection(
     sendingSignal: String,
     receivingSignal: String,
     liveMorseBuffer: String,
-    signalStrength: Float
+    signalStrength: Float,
+    cardBgColor: Color,
+    textColor: Color
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 16.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF2ECE4))
+            .background(cardBgColor)
             .padding(12.dp)
     ) {
         Row(
@@ -461,7 +501,8 @@ fun MorseSignalSection(
             Text(
                 "MORSE SIGNAL",
                 style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = textColor
             )
 
             // Signal Strength/Alignment Indicator
@@ -506,29 +547,43 @@ fun MorseSignalSection(
 }
 
 @Composable
-fun SignalRow(label: String, color: Color, signal: String, buffer: String = "") {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(label, color = color, fontSize = 10.sp, modifier = Modifier.width(70.dp))
+fun SignalRow(
+    label: String,
+    color: Color,
+    signal: String,
+    buffer: String = ""
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
-            text = signal.ifBlank { "• • •  - - -  • • •" },
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
             color = color,
-            letterSpacing = 4.sp,
-            maxLines = 1,
+            modifier = Modifier.width(70.dp)
+        )
+        Text(
+            text = if (buffer.isNotEmpty()) "$signal|$buffer" else signal,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                letterSpacing = 2.sp
+            ),
+            color = Color.White,
             modifier = Modifier.weight(1f)
         )
-        if (buffer.isNotEmpty()) {
-            Text(
-                text = " [$buffer]",
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
     }
 }
 
 @Composable
-fun CommunicationLogSection(modifier: Modifier, logs: List<LogEntry>, committedText: String) {
+fun CommunicationLogSection(
+    modifier: Modifier,
+    logs: List<LogEntry>,
+    committedText: String,
+    cardBgColor: Color,
+    textColor: Color
+) {
     val listState = rememberLazyListState()
 
     // Auto-scroll to bottom when new logs arrive or text is being committed
@@ -542,13 +597,14 @@ fun CommunicationLogSection(modifier: Modifier, logs: List<LogEntry>, committedT
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF2ECE4))
+            .background(cardBgColor)
             .padding(12.dp)
     ) {
         Text(
             "COMMUNICATION LOG",
             style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = textColor
         )
         LazyColumn(
             state = listState,
@@ -606,10 +662,15 @@ fun BottomControlsSection(
     speed: Float,
     onSpeedChange: (Float) -> Unit,
     isListening: Boolean,
-    onToggleListening: () -> Unit
+    onToggleListening: () -> Unit,
+    cardBgColor: Color,
+    textColor: Color,
+    isDark: Boolean
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Unified Speed Slider - Full Width for fine tuning
@@ -617,7 +678,7 @@ fun BottomControlsSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFF2ECE4))
+                .background(cardBgColor)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -630,7 +691,7 @@ fun BottomControlsSection(
                     "TRANSMISSION UNIT (SPEED)",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A453E)
+                    color = textColor
                 )
                 Text(
                     text = String.format(Locale.US, "%.2fx", speed),
@@ -658,7 +719,7 @@ fun BottomControlsSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFF2ECE4))
+                .background(cardBgColor)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -667,7 +728,8 @@ fun BottomControlsSection(
                 Text(
                     "LISTENING MODE",
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
                 )
                 Text(
                     "Decodes incoming light signals when active.",
@@ -677,10 +739,15 @@ fun BottomControlsSection(
             }
             Switch(
                 checked = isListening,
-                onCheckedChange = { onToggleListening() }
+                onCheckedChange = { onToggleListening() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFFFFA500),
+                    checkedTrackColor = Color(0xFFFFA500).copy(alpha = 0.5f),
+                    uncheckedThumbColor = if (isDark) Color.DarkGray else Color.White,
+                    uncheckedTrackColor = if (isDark) Color(0xFF222222) else Color(0xFFCCCCCC)
+                )
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-
     }
 }
