@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.flashmorse"
+    namespace = "com.vanguard.flashmorse"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.flashmorse"
+        applicationId = "com.vanguard.flashmorse"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.kotlinx.serialization.json)
 
     // Hilt
     implementation(libs.hilt.android)
