@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -27,6 +28,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -36,6 +38,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -78,7 +82,7 @@ fun CommunicatorScreen(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            viewModel.startListening()
+            viewModel.startVoiceListening()
         }
     }
 
@@ -123,17 +127,17 @@ fun CommunicatorScreen(
                     text = uiState.messageText,
                     onTextChange = viewModel::onMessageTextChanged,
                     onVoiceClick = {
-                        if (!uiState.isListening) {
+                        if (!uiState.isVoiceListening) {
                             val granted = PermissionUtils.isPermissionGranted(
                                 context = context, Manifest.permission.RECORD_AUDIO
                             )
                             if (granted) {
-                                viewModel.startListening()
+                                viewModel.startVoiceListening()
                             } else {
                                 audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                             }
                         } else {
-                            viewModel.stopListening()
+                            viewModel.stopVoiceListening()
 
                         }
                     },
@@ -149,7 +153,8 @@ fun CommunicatorScreen(
                         )
                     },
                     onCameraControlReady = viewModel::onCameraControlReady,
-                    onBrightnessDetected = viewModel::onBrightnessDetected
+                    onBrightnessDetected = viewModel::onBrightnessDetected,
+                    signalStrength = uiState.signalStrength
                 )
             }
 
@@ -158,7 +163,9 @@ fun CommunicatorScreen(
             // Morse Signal Section
             MorseSignalSection(
                 sendingSignal = uiState.sendingSignal,
-                receivingSignal = uiState.receivingSignal
+                receivingSignal = uiState.receivingSignal,
+                liveMorseBuffer = uiState.liveMorseBuffer,
+                signalStrength = uiState.signalStrength
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -166,7 +173,8 @@ fun CommunicatorScreen(
             // Communication Log Section
             CommunicationLogSection(
                 modifier = Modifier.weight(1f),
-                logs = uiState.communicationLog
+                logs = uiState.communicationLog,
+                committedText = uiState.committedReceivedText
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -175,19 +183,12 @@ fun CommunicatorScreen(
             BottomControlsSection(
                 speed = uiState.durationMultiplier,
                 onSpeedChange = viewModel::onSpeedChanged,
-                isListening = uiState.isListening,
+                isListening = uiState.isReceivingFlashlight,
                 onToggleListening = {
-                    if (uiState.isListening) {
-                        viewModel.stopListening()
+                    if (uiState.isReceivingFlashlight) {
+                        viewModel.stopReceivingFlashlight()
                     } else {
-                        val granted = PermissionUtils.isPermissionGranted(
-                            context = context, Manifest.permission.RECORD_AUDIO
-                        )
-                        if (granted) {
-                            viewModel.startListening()
-                        } else {
-                            audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                        }
+                        viewModel.startReceivingFlashlight()
                     }
                 }
             )
@@ -308,7 +309,12 @@ fun MessageInputSection(
 
 
 @Composable
-fun MorseSignalSection(sendingSignal: String, receivingSignal: String) {
+fun MorseSignalSection(
+    sendingSignal: String,
+    receivingSignal: String,
+    liveMorseBuffer: String,
+    signalStrength: Float
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -316,11 +322,33 @@ fun MorseSignalSection(sendingSignal: String, receivingSignal: String) {
             .background(Color(0xFFF2ECE4))
             .padding(12.dp)
     ) {
-        Text(
-            "MORSE SIGNAL",
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "MORSE SIGNAL",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold
+            )
+            
+            // Signal Strength/Alignment Indicator
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("ALIGNMENT", style = MaterialTheme.typography.labelSmall, color = Color.Gray, fontSize = 8.sp)
+                Spacer(Modifier.width(8.dp))
+                LinearProgressIndicator(
+                    progress = { signalStrength },
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp)),
+                    color = if (signalStrength > 0.6f) Color(0xFF90EE90) else Color(0xFFFFA500),
+                    trackColor = Color(0xFF1E1E1E),
+                    strokeCap = StrokeCap.Round
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -331,26 +359,49 @@ fun MorseSignalSection(sendingSignal: String, receivingSignal: String) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             SignalRow("SENDING", Color(0xFFFFA500), sendingSignal)
-            SignalRow("RECEIVING", Color(0xFF90EE90), receivingSignal)
+            SignalRow(
+                label = "RECEIVING",
+                color = Color(0xFF90EE90),
+                signal = receivingSignal,
+                buffer = liveMorseBuffer
+            )
         }
     }
 }
 
 @Composable
-fun SignalRow(label: String, color: Color, signal: String) {
+fun SignalRow(label: String, color: Color, signal: String, buffer: String = "") {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label, color = color, fontSize = 10.sp, modifier = Modifier.width(70.dp))
         Text(
-            text = signal.ifBlank { "• • •  - - -  • • •" }, // Placeholder if empty
+            text = signal.ifBlank { "• • •  - - -  • • •" },
             color = color,
             letterSpacing = 4.sp,
-            maxLines = 1
+            maxLines = 1,
+            modifier = Modifier.weight(1f)
         )
+        if (buffer.isNotEmpty()) {
+            Text(
+                text = " [$buffer]",
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
 @Composable
-fun CommunicationLogSection(modifier: Modifier, logs: List<LogEntry>) {
+fun CommunicationLogSection(modifier: Modifier, logs: List<LogEntry>, committedText: String) {
+    val listState = rememberLazyListState()
+    
+    // Auto-scroll to bottom when new logs arrive or text is being committed
+    LaunchedEffect(logs.size, committedText) {
+        if (logs.isNotEmpty() || committedText.isNotEmpty()) {
+            listState.animateScrollToItem(if (committedText.isNotEmpty()) logs.size else logs.size - 1)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -364,6 +415,7 @@ fun CommunicationLogSection(modifier: Modifier, logs: List<LogEntry>) {
             fontWeight = FontWeight.Bold
         )
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -385,6 +437,24 @@ fun CommunicationLogSection(modifier: Modifier, logs: List<LogEntry>) {
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(entry.message, color = Color.White, fontSize = 12.sp)
+                }
+            }
+            
+            // Show live decoding text that hasn't been finalized yet
+            if (committedText.isNotEmpty()) {
+                item {
+                    Row(modifier = Modifier.padding(vertical = 4.dp)) {
+                        Text("--:--", color = Color.Gray, fontSize = 10.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "TYPING",
+                            color = Color(0xFF90EE90),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(committedText, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
+                    }
                 }
             }
         }

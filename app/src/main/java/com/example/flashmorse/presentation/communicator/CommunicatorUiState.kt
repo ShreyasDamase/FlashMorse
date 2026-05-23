@@ -2,12 +2,15 @@ package com.example.flashmorse.presentation.communicator
 
 data class CommunicatorUiState(
     val messageText: String = "",
-    val isListening: Boolean = false,
+    val isVoiceListening: Boolean = false,
+    val isReceivingFlashlight: Boolean = false,
     val partialReceivedText: String = "",
     val committedReceivedText: String = "",
     val communicationLog: List<LogEntry> = emptyList(),
     val sendingSignal: String = "",
     val receivingSignal: String = "",
+    val liveMorseBuffer: String = "",
+    val signalStrength: Float = 0f,
     val durationMultiplier: Float = 1.0f
 )
 

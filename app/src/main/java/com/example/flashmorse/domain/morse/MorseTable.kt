@@ -24,4 +24,8 @@ object MorseTable {
     fun lookupMorse(char: Char): String? {
         return table[char.uppercaseChar()]
     }
+
+    fun lookupChar(morse: String): Char? {
+        return table.entries.find { it.value == morse }?.key
+    }
 }

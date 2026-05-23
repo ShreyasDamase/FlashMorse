@@ -116,15 +116,13 @@ enum class MorseSymbol(
         /**
          * Classifies flashlight ON duration
          * into DOT or DASH.
-         *
-         * < 400ms  → DOT
-         * >= 400ms → DASH
          */
         fun classifyOnPulse(
             durationMs: Long,
+            multiplier: Float = 1.0f
         ): MorseSymbol {
-
-            return if (durationMs < BASE_UNIT_MS * 2) {
+            val scaledBase = BASE_UNIT_MS / multiplier
+            return if (durationMs < scaledBase * 2) {
                 DOT
             } else {
                 DASH
@@ -134,18 +132,15 @@ enum class MorseSymbol(
         /**
          * Classifies flashlight OFF duration
          * into Morse gap types.
-         *
-         * < 400ms  → SYMBOL_GAP
-         * < 1000ms → LETTER_GAP
-         * >=1000ms → WORD_GAP
          */
         fun classifyGap(
             durationMs: Long,
+            multiplier: Float = 1.0f
         ): MorseSymbol {
-
+            val scaledBase = BASE_UNIT_MS / multiplier
             return when {
-                durationMs < BASE_UNIT_MS * 2 -> SYMBOL_GAP
-                durationMs < BASE_UNIT_MS * 5 -> LETTER_GAP
+                durationMs < scaledBase * 2 -> SYMBOL_GAP
+                durationMs < scaledBase * 5 -> LETTER_GAP
                 else -> WORD_GAP
             }
         }

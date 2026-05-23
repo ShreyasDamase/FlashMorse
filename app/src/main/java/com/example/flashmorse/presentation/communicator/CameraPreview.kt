@@ -74,26 +74,44 @@ fun CameraPreview(
                     val height = imageProxy.height
                     val rowStride = plane.rowStride
                     
-                    // LOCK ON: Focus only on the center 20% area
-                    val roiWidth = width / 5
-                    val roiHeight = height / 5
+                    // Use a tight center ROI and average only the brightest samples so
+                    // room lighting does not look like a constant "ON" signal.
+                    val roiWidth = width / 8
+                    val roiHeight = height / 8
                     val startX = (width - roiWidth) / 2
                     val startY = (height - roiHeight) / 2
                     
-                    var maxBrightness = 0
+                    val topSamples = IntArray(12)
+                    var topCount = 0
                     
-                    // Fast Peak Detection Loop
                     for (y in startY until startY + roiHeight step 2) {
                         for (x in startX until startX + roiWidth step 2) {
                             val index = y * rowStride + x
                             val brightness = buffer.get(index).toInt() and 0xFF
-                            if (brightness > maxBrightness) {
-                                maxBrightness = brightness
+                            if (topCount < topSamples.size) {
+                                topSamples[topCount] = brightness
+                                topCount++
+                            } else {
+                                var minIndex = 0
+                                for (i in 1 until topSamples.size) {
+                                    if (topSamples[i] < topSamples[minIndex]) {
+                                        minIndex = i
+                                    }
+                                }
+                                if (brightness > topSamples[minIndex]) {
+                                    topSamples[minIndex] = brightness
+                                }
                             }
                         }
                     }
                     
-                    onBrightnessDetected(maxBrightness.toDouble())
+                    val brightnessScore = if (topCount == 0) {
+                        0.0
+                    } else {
+                        topSamples.take(topCount).average()
+                    }
+
+                    onBrightnessDetected(brightnessScore)
                     imageProxy.close()
                 }
 
