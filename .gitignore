@@ -1,6 +1,11 @@
 *.iml
 .gradle
 /local.properties
+*.jks
+*.keystore
+*.p12
+*.jceks
+*.google_play_track.json
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -13,3 +18,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+*.jks
+*.keystore
+*.p12
+*.jceks
+*.google_play_track.json
